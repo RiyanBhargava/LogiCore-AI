@@ -109,31 +109,6 @@ The application uses CSV files for data storage:
 - `/api/predict_packaging`: Get packaging recommendations
 - `/api/predict_delivery_issues`: Predict possible delivery problems
 
-## Directory Structure
-
-```
-app/
-├── agentic/
-│   ├── __init__.py
-│   ├── chatbot.py
-│   ├── packaging_agent.py
-├── data/
-│   ├── Product_Package_Dataset.csv
-│   ├── Shipping_Company_Section.csv
-│   ├── Customer_Section_Table.csv
-│   ├── Route_Optimization_Data.csv
-├── static/
-│   ├── css/
-│   ├── js/
-│   ├── images/
-├── templates/
-│   ├── base.html
-│   ├── login.html
-│   ├── packaging_predict.html
-│   └── ...
-├── app.py
-```
-
 ## AI Implementation Details
 
 ### PackagingAgent
