@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block title %}Driver Dashboard - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Driver Dashboard</h2>
+        <p class="lead">Welcome to your driver portal. View optimized routes and navigate potential delivery challenges.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-route me-2"></i> Optimized Delivery Route
+            </div>
+            <div class="card-body p-0">
+                <div class="map-container">
+                    {{ map_html|safe }}
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-info-circle me-2"></i> Route: Business Bay to Jumeirah</span>
+                    <button class="btn btn-sm btn-outline-primary" disabled>Get turn-by-turn directions (Coming soon)</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- New card for optimized routes -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-map-marked-alt me-2"></i> Recommended Optimized Routes
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Route ID</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Distance</th>
+                                <th>Est. Time</th>
+                                <th>Traffic</th>
+                                <th>Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for route in optimized_routes %}
+                            <tr>
+                                <td>{{ route.route_id }}</td>
+                                <td>{{ route.start }}</td>
+                                <td>{{ route.end }}</td>
+                                <td>{{ route.distance }} km</td>
+                                <td>{{ route.time }} min</td>
+                                <td>
+                                    {% if route.traffic == 'Low' %}
+                                    <span class="badge bg-success">{{ route.traffic }}</span>
+                                    {% elif route.traffic == 'Medium' %}
+                                    <span class="badge bg-warning text-dark">{{ route.traffic }}</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">{{ route.traffic }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if route.priority == 'High' %}
+                                    <span class="badge bg-danger">{{ route.priority }}</span>
+                                    {% elif route.priority == 'Medium' %}
+                                    <span class="badge bg-warning text-dark">{{ route.priority }}</span>
+                                    {% else %}
+                                    <span class="badge bg-info">{{ route.priority }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="fas fa-lightbulb me-2"></i> <strong>Smart Routing:</strong> Routes are optimized based on current traffic, weather conditions, and delivery priorities.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-exclamation-triangle me-2"></i> Potential Delivery Challenges
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Predicted Problem Areas</h5>
+                <ul class="problem-areas-list">
+                    {% for area in problem_areas %}
+                        <li><i class="fas fa-exclamation-circle me-2"></i> {{ area }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-tasks me-2"></i> Today's Deliveries
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Time</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>D201</td>
+                                <td>09:30</td>
+                                <td>Business Bay</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>D208</td>
+                                <td>11:45</td>
+                                <td>Downtown Dubai</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                            <tr class="table-active">
+                                <td>D215</td>
+                                <td>14:30</td>
+                                <td>Jumeirah</td>
+                                <td><span class="badge bg-primary">Current</span></td>
+                            </tr>
+                            <tr>
+                                <td>D219</td>
+                                <td>16:15</td>
+                                <td>Dubai Marina</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>D223</td>
+                                <td>17:45</td>
+                                <td>Palm Jumeirah</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{{ url_for('driver_report') }}" class="btn btn-success">Submit Delivery Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-tachometer-alt me-2"></i> Performance Metrics
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>On-Time Delivery Rate</h5>
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 94%;" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100">94%</div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Customer Satisfaction</h5>
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 92%;" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100">92%</div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Package Safety</h5>
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 97%;" aria-valuenow="97" aria-valuemin="0" aria-valuemax="100">97%</div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-success" role="alert">
+                    <i class="fas fa-trophy me-2"></i> <strong>Great job!</strong> Your performance is above average in all metrics.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-secondary text-white">
+                <i class="fas fa-chart-line me-2"></i> Weekly Statistics
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-box"></i>
+                            <div class="stat-number">128</div>
+                            <div class="stat-label">Packages Delivered</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-road"></i>
+                            <div class="stat-number">417</div>
+                            <div class="stat-label">Km Traveled</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <i class="fas fa-gas-pump"></i>
+                            <div class="stat-number">42</div>
+                            <div class="stat-label">Liters Used</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <i class="fas fa-star"></i>
+                            <div class="stat-number">4.8</div>
+                            <div class="stat-label">Avg. Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-exclamation-circle me-2"></i> Risk Management
+            </div>
+            <div class="card-body">
+                <h5 class="card-title mb-3">Recommended Actions</h5>
+                
+                <div class="list-group">
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">High Traffic Areas</h6>
+                            <small class="text-muted">Today</small>
+                        </div>
+                        <p class="mb-1">Avoid Downtown Dubai between 4PM-7PM due to heavy congestion.</p>
+                    </div>
+                    
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Weather Alert</h6>
+                            <small class="text-muted">Today</small>
+                        </div>
+                        <p class="mb-1">Dusty conditions expected in afternoon. Secure packages properly.</p>
+                    </div>
+                    
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Fragile Items</h6>
+                            <small class="text-muted">Next delivery</small>
+                        </div>
+                        <p class="mb-1">Your next delivery (D219) contains fragile electronics. Handle with care.</p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> Enable notifications to receive real-time alerts about road conditions.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

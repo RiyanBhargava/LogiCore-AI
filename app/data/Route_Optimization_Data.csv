@@ -1,0 +1,31 @@
+Route_ID,Start_Location,End_Location,Start_Lat,Start_Long,End_Lat,End_Long,Distance_KM,Estimated_Time_Min,Traffic_Level,Weather_Condition,Time_of_Day,Day_of_Week,Delivery_Priority
+R001,Business Bay,Dubai Marina,25.1972,55.2744,25.1124,55.1390,12.7,25,Low,Clear,Morning,Monday,High
+R002,Deira,Al Quoz,25.2285,55.3273,25.0621,55.2247,15.4,32,Medium,Clear,Afternoon,Monday,Medium
+R003,Dubai Airport,Business Bay,25.2361,55.3894,25.1972,55.2744,10.5,22,Low,Clear,Evening,Monday,Low
+R004,Palm Jumeirah,Dubai Marina,25.0478,55.1816,25.1124,55.1390,7.2,15,Low,Clear,Morning,Tuesday,High
+R005,Business Bay,Downtown Dubai,25.1972,55.2744,25.2048,55.2708,1.2,5,Low,Clear,Afternoon,Tuesday,Medium
+R006,Dubai Creek,Deira,25.2743,55.3087,25.2285,55.3273,2.3,8,Low,Clear,Evening,Tuesday,High
+R007,Dubai Marina,Dubai Sports City,25.1124,55.1390,25.0677,55.1403,4.6,12,Low,Clear,Morning,Wednesday,Medium
+R008,Al Quoz,Business Bay,25.0621,55.2247,25.1972,55.2744,8.5,18,Medium,Clear,Afternoon,Wednesday,High
+R009,Downtown Dubai,Dubai Creek,25.2048,55.2708,25.2743,55.3087,4.2,10,Medium,Clear,Evening,Wednesday,Medium
+R010,Dubai Airport,Palm Jumeirah,25.2361,55.3894,25.0478,55.1816,18.3,38,Medium,Clear,Morning,Thursday,High
+R011,Business Bay,Jumeirah,25.1972,55.2744,25.1676,55.2463,3.5,12,Low,Clear,Afternoon,Thursday,High
+R012,Deira,Dubai Airport,25.2285,55.3273,25.2361,55.3894,5.8,14,Medium,Clear,Evening,Thursday,Medium
+R013,Dubai Sports City,Dubai Investments Park,25.0677,55.1403,25.0188,55.0371,9.7,22,Low,Clear,Morning,Friday,Low
+R014,Downtown Dubai,Al Quoz,25.2048,55.2708,25.0621,55.2247,10.4,24,Low,Clear,Afternoon,Friday,Medium
+R015,Business Bay,Dubai Marina,25.1972,55.2744,25.1124,55.1390,12.7,28,High,Clear,Evening,Friday,High
+R016,Dubai Creek,Business Bay,25.2743,55.3087,25.1972,55.2744,6.8,16,Medium,Rainy,Morning,Saturday,Medium
+R017,Palm Jumeirah,Downtown Dubai,25.0478,55.1816,25.2048,55.2708,14.5,30,Medium,Rainy,Afternoon,Saturday,High
+R018,Al Quoz,Dubai Sports City,25.0621,55.2247,25.0677,55.1403,8.2,18,Low,Rainy,Evening,Saturday,Low
+R019,Dubai Marina,Business Bay,25.1124,55.1390,25.1972,55.2744,12.7,25,Medium,Rainy,Morning,Sunday,Medium
+R020,Deira,Dubai Creek,25.2285,55.3273,25.2743,55.3087,2.3,7,Low,Cloudy,Afternoon,Sunday,High
+R021,Business Bay,Jumeirah,25.1972,55.2744,25.1676,55.2463,3.5,10,Low,Clear,Morning,Monday,High
+R022,Business Bay,Dubai Marina,25.1972,55.2744,25.1124,55.1390,12.7,35,High,Clear,Afternoon,Monday,Medium
+R023,Business Bay,Downtown Dubai,25.1972,55.2744,25.2048,55.2708,1.2,6,Medium,Clear,Evening,Monday,High
+R024,Business Bay,Dubai Airport,25.1972,55.2744,25.2361,55.3894,10.5,28,High,Clear,Morning,Tuesday,Medium
+R025,Business Bay,Deira,25.1972,55.2744,25.2285,55.3273,5.8,15,Medium,Clear,Afternoon,Tuesday,Low
+R026,Business Bay,Al Quoz,25.1972,55.2744,25.0621,55.2247,8.5,20,Medium,Clear,Evening,Tuesday,High
+R027,Business Bay,Dubai Creek,25.1972,55.2744,25.2743,55.3087,6.8,18,Medium,Clear,Morning,Wednesday,Medium
+R028,Business Bay,Dubai Sports City,25.1972,55.2744,25.0677,55.1403,13.4,30,High,Clear,Afternoon,Wednesday,Low
+R029,Business Bay,Palm Jumeirah,25.1972,55.2744,25.0478,55.1816,15.8,35,High,Clear,Evening,Wednesday,High
+R030,Business Bay,Dubai Investments Park,25.1972,55.2744,25.0188,55.0371,22.5,45,High,Cloudy,Morning,Thursday,Medium 

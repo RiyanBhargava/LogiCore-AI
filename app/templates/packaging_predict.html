@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Packaging Recommendation - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Packaging Material Recommendation</h2>
+        <p class="lead">Get AI-powered recommendations for optimal packaging based on product specifications.</p>
+        <span class="badge bg-primary">Powered by Agentic AI</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-box-open me-2"></i> Product Specifications
+            </div>
+            <div class="card-body">
+                <form id="packaging-form" action="{{ url_for('packaging_predict') }}" method="POST" class="form-container">
+                    <div class="mb-3">
+                        <label for="product_type" class="form-label">Product Type</label>
+                        <select class="form-select" id="product_type" name="product_type" required>
+                            <option value="" selected disabled>Select product type</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Fresh Produce">Fresh Produce</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Books">Books</option>
+                            <option value="Pharmaceuticals">Pharmaceuticals</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Glassware">Glassware</option>
+                            <option value="Seafood">Seafood</option>
+                            <option value="Chemicals">Chemicals</option>
+                            <option value="Toys">Toys</option>
+                            <option value="Artwork">Artwork</option>
+                            <option value="Wine">Wine</option>
+                            <option value="Coffee">Coffee</option>
+                            <option value="Chocolates">Chocolates</option>
+                            <option value="Musical Instruments">Musical Instruments</option>
+                            <option value="Cosmetics">Cosmetics</option>
+                            <option value="Pet Supplies">Pet Supplies</option>
+                            <option value="Sports Equipment">Sports Equipment</option>
+                            <option value="Automotive Parts">Automotive Parts</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="weight_kg" class="form-label">Weight (kg)</label>
+                        <input type="number" class="form-control" id="weight_kg" name="weight_kg" step="0.1" min="0.1" max="100" required>
+                        <div class="form-text">Enter the weight of the product in kilograms (0.1 to 100 kg).</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fragile" class="form-label">Fragile</label>
+                        <select class="form-select" id="fragile" name="fragile" required>
+                            <option value="" selected disabled>Select fragility</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="temp_condition" class="form-label">Temperature Condition</label>
+                        <select class="form-select" id="temp_condition" name="temp_condition" required>
+                            <option value="" selected disabled>Select temperature condition</option>
+                            <option value="Room Temp">Room Temperature</option>
+                            <option value="Cold Chain">Cold Chain</option>
+                            <option value="Frozen">Frozen</option>
+                            <option value="Cool">Cool</option>
+                            <option value="Dry">Dry</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="humidity_level" class="form-label">Humidity Level</label>
+                        <select class="form-select" id="humidity_level" name="humidity_level" required>
+                            <option value="" selected disabled>Select humidity level</option>
+                            <option value="Low">Low</option>
+                            <option value="Moderate">Moderate</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Get Recommendation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-magic me-2"></i> AI Recommendation Results
+            </div>
+            <div class="card-body">
+                {% if prediction %}
+                    <div class="prediction-result">
+                        <h3 class="mb-4">Recommended Packaging:</h3>
+                        <div class="display-6 mb-4">
+                            <strong>{{ prediction }}</strong>
+                        </div>
+                        
+                        {% if method == 'agentic_ai' %}
+                            <div class="alert alert-primary" role="alert">
+                                <i class="fas fa-robot me-2"></i> <strong>Agentic AI Recommendation</strong>
+                                {% if confidence == 'high' %}
+                                    <span class="badge bg-success ms-2">High Confidence</span>
+                                {% elif confidence == 'medium' %}
+                                    <span class="badge bg-warning text-dark ms-2">Medium Confidence</span>
+                                {% else %}
+                                    <span class="badge bg-danger ms-2">Low Confidence</span>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-secondary" role="alert">
+                                <i class="fas fa-database me-2"></i> <strong>Rule-Based Recommendation</strong>
+                                <span class="badge bg-warning text-dark ms-2">Medium Confidence</span>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-4">
+                            <h5>Why this packaging?</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p>{{ explanation }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm" type="button" disabled>
+                                <i class="fas fa-print me-2"></i> Print recommendation (Coming soon)
+                            </button>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center my-5">
+                        <img src="{{ url_for('static', filename='images/Agentic AI.webp') }}" alt="AI Packaging" class="img-fluid mb-4 rounded-circle" style="max-height: 150px;">
+                        <h5>Enter product specifications to receive AI-powered packaging recommendations</h5>
+                        <p class="text-muted">Our Agentic AI system analyzes your product's characteristics using advanced RAG techniques and suggests the optimal packaging solution.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-lightbulb me-2"></i> How Our Agentic AI Works
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3 mb-md-0">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-database text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mt-3">Vector Database</h5>
+                        <p class="small">We've created a FAISS vector database from our product dataset for semantic search.</p>
+                    </div>
+                    
+                    <div class="col-md-3 text-center mb-3 mb-md-0">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-robot text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mt-3">Ollama LLM</h5>
+                        <p class="small">We use Llama3.2 with MxBai embeddings for state-of-the-art AI reasoning.</p>
+                    </div>
+                    
+                    <div class="col-md-3 text-center mb-3 mb-md-0">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-project-diagram text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mt-3">RAG Architecture</h5>
+                        <p class="small">Retrieval Augmented Generation combines our data with AI reasoning.</p>
+                    </div>
+                    
+                    <div class="col-md-3 text-center">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-box text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mt-3">Recommendation</h5>
+                        <p class="small">The system provides intelligent packaging solutions with confidence scoring.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

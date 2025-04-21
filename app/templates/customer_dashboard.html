@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Customer Dashboard</h2>
+        <p class="lead">Welcome to your personalized logistics dashboard. Track your deliveries and provide feedback.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-truck me-2"></i> Recent Deliveries
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">D128</h5>
+                            <small>Today</small>
+                        </div>
+                        <p class="mb-1">Electronics - Successfully Delivered</p>
+                        <small>Dubai, 14:30</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">D117</h5>
+                            <small>2 days ago</small>
+                        </div>
+                        <p class="mb-1">Books - Successfully Delivered</p>
+                        <small>Abu Dhabi, 09:15</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">D105</h5>
+                            <small>1 week ago</small>
+                        </div>
+                        <p class="mb-1">Clothing - Successfully Delivered</p>
+                        <small>Sharjah, 16:45</small>
+                    </a>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{{ url_for('customer_feedback') }}" class="btn btn-primary">Submit Feedback</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-chart-line me-2"></i> Delivery Statistics
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>On-Time Delivery Rate</h5>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 92%;" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100">92%</div>
+                    </div>
+                    <small class="text-muted">Based on your last 10 deliveries</small>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Package Condition</h5>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 88%;" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100">88%</div>
+                    </div>
+                    <small class="text-muted">Excellent condition on arrival</small>
+                </div>
+                
+                <div>
+                    <h5>Overall Satisfaction</h5>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 90%;" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">90%</div>
+                    </div>
+                    <small class="text-muted">Based on your feedback ratings</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-bell me-2"></i> Upcoming Deliveries
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info" role="alert">
+                    <h5 class="alert-heading">Delivery #D135</h5>
+                    <p>Your package is on its way! Expected delivery tomorrow between 14:00 - 16:00.</p>
+                    <hr>
+                    <p class="mb-0">Electronics - Driver ID: DR005</p>
+                </div>
+                
+                <div class="alert alert-info" role="alert">
+                    <h5 class="alert-heading">Delivery #D142</h5>
+                    <p>Package prepared for shipping. Expected delivery in 3 days.</p>
+                    <hr>
+                    <p class="mb-0">Clothing - Packaging optimized for clothing items</p>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-warning" disabled>Track in real-time (Coming soon)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-history me-2"></i> Delivery History
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Delivery ID</th>
+                                <th>Date</th>
+                                <th>Item Type</th>
+                                <th>Status</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>D128</td>
+                                <td>Today</td>
+                                <td>Electronics</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                                <td>Pending</td>
+                            </tr>
+                            <tr>
+                                <td>D117</td>
+                                <td>2 days ago</td>
+                                <td>Books</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                                <td>5/5</td>
+                            </tr>
+                            <tr>
+                                <td>D105</td>
+                                <td>1 week ago</td>
+                                <td>Clothing</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                                <td>4/5</td>
+                            </tr>
+                            <tr>
+                                <td>D098</td>
+                                <td>2 weeks ago</td>
+                                <td>Electronics</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                                <td>3/5</td>
+                            </tr>
+                            <tr>
+                                <td>D092</td>
+                                <td>3 weeks ago</td>
+                                <td>Furniture</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                                <td>4/5</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-exclamation-triangle me-2"></i> Delivery Insights
+            </div>
+            <div class="card-body">
+                <h5>Based on your delivery history:</h5>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Most reliable item category
+                        <span class="badge bg-primary rounded-pill">Books</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Most challenging delivery location
+                        <span class="badge bg-primary rounded-pill">Sharjah</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Best delivery time window
+                        <span class="badge bg-primary rounded-pill">9AM-12PM</span>
+                    </li>
+                </ul>
+                
+                <div class="alert alert-warning mt-3" role="alert">
+                    <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> Consider grouping your electronics items in a single delivery for optimal packaging.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <i class="fas fa-star me-2"></i> Your Feedback Impact
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-thumbs-up text-success" style="font-size: 3rem;"></i>
+                </div>
+                <h5>Your feedback has helped improve delivery efficiency by:</h5>
+                <div class="display-4 fw-bold text-primary mb-3">17%</div>
+                <p>Thank you for helping us improve our services!</p>
+                <a href="{{ url_for('customer_feedback') }}" class="btn btn-outline-primary">Submit More Feedback</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

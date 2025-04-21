@@ -1,0 +1,101 @@
+Product_ID,Product_Type,Weight_kg,Fragile,Packaging_Material,Temp_Condition,Humidity_Level
+1001,Electronics,1.2,Yes,Bubble Wrap + Box,Room Temp,Low
+1002,Fresh Produce,5.0,No,Foam Box + Ice Pack,Cold Chain,High
+1003,Furniture,15.0,Yes,Thermocol + Box,Room Temp,Moderate
+1004,Books,3.0,No,Corrugated Box,Dry,Low
+1005,Pharmaceuticals,0.5,Yes,Insulated Box,Cold Chain,Low
+1006,Clothing,2.0,No,Plastic Wrap + Box,Room Temp,Moderate
+1007,Glassware,4.0,Yes,Bubble Wrap + Foam,Room Temp,Low
+1008,Seafood,6.0,No,Ice Box,Frozen,High
+1009,Electronics,0.8,Yes,Anti-Static + Box,Room Temp,Low
+1010,Chemicals,10.0,Yes,Sealed Drum,Cool,Moderate
+1011,Electronics,2.5,Yes,Bubble Wrap + Box,Room Temp,Low
+1012,Fresh Produce,4.2,No,Foam Box + Ice Pack,Cold Chain,High
+1013,Furniture,18.7,Yes,Thermocol + Box,Room Temp,Moderate
+1014,Books,2.1,No,Corrugated Box,Dry,Low
+1015,Pharmaceuticals,0.3,Yes,Insulated Box,Cold Chain,Low
+1016,Clothing,1.8,No,Plastic Wrap + Box,Room Temp,Moderate
+1017,Glassware,5.2,Yes,Bubble Wrap + Foam,Room Temp,Low
+1018,Seafood,7.5,No,Ice Box,Frozen,High
+1019,Electronics,1.1,Yes,Anti-Static + Box,Room Temp,Low
+1020,Chemicals,12.3,Yes,Sealed Drum,Cool,Moderate
+1021,Electronics,3.0,Yes,Bubble Wrap + Box,Room Temp,Low
+1022,Fresh Produce,3.8,No,Foam Box + Ice Pack,Cold Chain,High
+1023,Furniture,22.4,Yes,Thermocol + Box,Room Temp,Moderate
+1024,Books,4.5,No,Corrugated Box,Dry,Low
+1025,Pharmaceuticals,0.7,Yes,Insulated Box,Cold Chain,Low
+1026,Clothing,2.5,No,Plastic Wrap + Box,Room Temp,Moderate
+1027,Glassware,3.1,Yes,Bubble Wrap + Foam,Room Temp,Low
+1028,Seafood,5.8,No,Ice Box,Frozen,High
+1029,Electronics,0.9,Yes,Anti-Static + Box,Room Temp,Low
+1030,Chemicals,8.7,Yes,Sealed Drum,Cool,Moderate
+1031,Electronics,1.5,Yes,Bubble Wrap + Box,Room Temp,Low
+1032,Fresh Produce,6.2,No,Foam Box + Ice Pack,Cold Chain,High
+1033,Furniture,19.8,Yes,Thermocol + Box,Room Temp,Moderate
+1034,Books,2.8,No,Corrugated Box,Dry,Low
+1035,Pharmaceuticals,0.4,Yes,Insulated Box,Cold Chain,Low
+1036,Clothing,1.9,No,Plastic Wrap + Box,Room Temp,Moderate
+1037,Glassware,4.7,Yes,Bubble Wrap + Foam,Room Temp,Low
+1038,Seafood,8.3,No,Ice Box,Frozen,High
+1039,Electronics,1.3,Yes,Anti-Static + Box,Room Temp,Low
+1040,Chemicals,11.5,Yes,Sealed Drum,Cool,Moderate
+1041,Electronics,2.2,Yes,Bubble Wrap + Box,Room Temp,Low
+1042,Fresh Produce,4.8,No,Foam Box + Ice Pack,Cold Chain,High
+1043,Furniture,16.3,Yes,Thermocol + Box,Room Temp,Moderate
+1044,Books,3.6,No,Corrugated Box,Dry,Low
+1045,Pharmaceuticals,0.6,Yes,Insulated Box,Cold Chain,Low
+1046,Clothing,2.2,No,Plastic Wrap + Box,Room Temp,Moderate
+1047,Glassware,4.3,Yes,Bubble Wrap + Foam,Room Temp,Low
+1048,Seafood,6.5,No,Ice Box,Frozen,High
+1049,Electronics,0.7,Yes,Anti-Static + Box,Room Temp,Low
+1050,Chemicals,9.8,Yes,Sealed Drum,Cool,Moderate
+1051,Electronics,1.4,Yes,Bubble Wrap + Box,Room Temp,Low
+1052,Fresh Produce,5.5,No,Foam Box + Ice Pack,Cold Chain,High
+1053,Furniture,17.2,Yes,Thermocol + Box,Room Temp,Moderate
+1054,Books,2.5,No,Corrugated Box,Dry,Low
+1055,Pharmaceuticals,0.8,Yes,Insulated Box,Cold Chain,Low
+1056,Clothing,1.7,No,Plastic Wrap + Box,Room Temp,Moderate
+1057,Glassware,3.9,Yes,Bubble Wrap + Foam,Room Temp,Low
+1058,Seafood,7.2,No,Ice Box,Frozen,High
+1059,Electronics,1.0,Yes,Anti-Static + Box,Room Temp,Low
+1060,Chemicals,10.5,Yes,Sealed Drum,Cool,Moderate
+1061,Toys,0.9,No,Cardboard Box,Room Temp,Low
+1062,Artwork,2.5,Yes,Wooden Crate,Dry,Low
+1063,Wine,7.3,Yes,Foam Insert + Box,Cool,Moderate
+1064,Coffee,1.2,No,Vacuum Sealed,Room Temp,Low
+1065,Chocolates,0.5,Yes,Insulated Box,Cool,Low
+1066,Musical Instruments,5.8,Yes,Custom Foam Case,Room Temp,Moderate
+1067,Cosmetics,0.4,No,Bubble Wrap + Box,Room Temp,Low
+1068,Pet Supplies,3.7,No,Corrugated Box,Room Temp,Moderate
+1069,Sports Equipment,4.5,No,Sturdy Box,Room Temp,Low
+1070,Automotive Parts,8.2,Yes,Molded Plastic,Room Temp,Low
+1071,Toys,1.1,No,Cardboard Box,Room Temp,Low
+1072,Artwork,3.2,Yes,Wooden Crate,Dry,Low
+1073,Wine,8.1,Yes,Foam Insert + Box,Cool,Moderate
+1074,Coffee,1.5,No,Vacuum Sealed,Room Temp,Low
+1075,Chocolates,0.7,Yes,Insulated Box,Cool,Low
+1076,Musical Instruments,6.3,Yes,Custom Foam Case,Room Temp,Moderate
+1077,Cosmetics,0.3,No,Bubble Wrap + Box,Room Temp,Low
+1078,Pet Supplies,4.1,No,Corrugated Box,Room Temp,Moderate
+1079,Sports Equipment,5.2,No,Sturdy Box,Room Temp,Low
+1080,Automotive Parts,7.8,Yes,Molded Plastic,Room Temp,Low
+1081,Electronics,1.6,Yes,Bubble Wrap + Box,Room Temp,Low
+1082,Fresh Produce,5.3,No,Foam Box + Ice Pack,Cold Chain,High
+1083,Furniture,20.1,Yes,Thermocol + Box,Room Temp,Moderate
+1084,Books,3.4,No,Corrugated Box,Dry,Low
+1085,Pharmaceuticals,0.2,Yes,Insulated Box,Cold Chain,Low
+1086,Clothing,2.3,No,Plastic Wrap + Box,Room Temp,Moderate
+1087,Glassware,4.9,Yes,Bubble Wrap + Foam,Room Temp,Low
+1088,Seafood,6.8,No,Ice Box,Frozen,High
+1089,Electronics,1.5,Yes,Anti-Static + Box,Room Temp,Low
+1090,Chemicals,9.5,Yes,Sealed Drum,Cool,Moderate
+1091,Toys,0.8,No,Cardboard Box,Room Temp,Low
+1092,Artwork,2.7,Yes,Wooden Crate,Dry,Low
+1093,Wine,7.9,Yes,Foam Insert + Box,Cool,Moderate
+1094,Coffee,1.1,No,Vacuum Sealed,Room Temp,Low
+1095,Chocolates,0.6,Yes,Insulated Box,Cool,Low
+1096,Musical Instruments,5.5,Yes,Custom Foam Case,Room Temp,Moderate
+1097,Cosmetics,0.5,No,Bubble Wrap + Box,Room Temp,Low
+1098,Pet Supplies,3.9,No,Corrugated Box,Room Temp,Moderate
+1099,Sports Equipment,4.7,No,Sturdy Box,Room Temp,Low
+1100,Automotive Parts,8.5,Yes,Molded Plastic,Room Temp,Low 

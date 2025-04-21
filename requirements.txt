@@ -1,0 +1,13 @@
+flask
+flask-login
+pandas
+numpy
+joblib
+folium
+plotly
+werkzeug
+langchain
+langchain-community
+langchain-ollama
+faiss-cpu
+ollama

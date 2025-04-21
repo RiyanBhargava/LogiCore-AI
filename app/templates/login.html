@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Login</h2>
+    
+    <form method="POST" action="{{ url_for('login') }}">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+    </form>
+    
+    <div class="auth-footer">
+        <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+    </div>
+    
+    <div class="mt-4">
+        <div class="card">
+            <div class="card-header">
+                Demo Accounts
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Customer:</strong><br>
+                        Email: customer@example.com<br>
+                        Password: customer123</p>
+                        
+                        <p><strong>Driver:</strong><br>
+                        Email: driver@example.com<br>
+                        Password: driver123</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Company:</strong><br>
+                        Email: company@example.com<br>
+                        Password: company123</p>
+                        
+                        <p><strong>Packaging:</strong><br>
+                        Email: packaging@example.com<br>
+                        Password: packaging123</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

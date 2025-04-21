@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+
+{% block title %}Driver Report - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Delivery Status Report</h2>
+        <p class="lead">Update delivery status and report any issues encountered during delivery.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Delivery Status Update</h5>
+            </div>
+            <div class="card-body">
+                <form id="deliveryReportForm" action="{{ url_for('driver_report') }}" method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="delivery_id" class="form-label">Order ID</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                                <input type="text" class="form-control" id="delivery_id" name="delivery_id" placeholder="Enter order ID" required>
+                                <button class="btn btn-outline-secondary" type="button" id="scanQrBtn" title="Scan QR Code">
+                                    <i class="fas fa-qrcode"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="deliveryStatus" class="form-label">Delivery Status</label>
+                            <select class="form-select" id="deliveryStatus" required>
+                                <option value="" selected disabled>Select status</option>
+                                <option value="delivered">Delivered Successfully</option>
+                                <option value="attempted">Delivery Attempted</option>
+                                <option value="cancelled">Delivery Cancelled</option>
+                                <option value="delayed">Delivery Delayed</option>
+                                <option value="returned">Package Returned</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Hidden fields for API data -->
+                    <input type="hidden" id="driver_id" name="driver_id" value="{{ current_user.id }}">
+                    <input type="hidden" id="time" name="time" value="">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="deliveryDateTime" class="form-label">Delivery Date & Time</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                <input type="datetime-local" class="form-control" id="deliveryDateTime" required>
+                            </div>
+                            <small class="form-text text-muted">24-hour format (HH:MM)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="recipientName" class="form-label">Recipient Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="recipientName" placeholder="Enter recipient name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="location" class="form-label">Delivery Location</label>
+                            <select class="form-select" id="location" name="location" required>
+                                <option value="" selected disabled>Select emirate</option>
+                                <option value="Dubai">Dubai</option>
+                                <option value="Abu Dhabi">Abu Dhabi</option>
+                                <option value="Sharjah">Sharjah</option>
+                                <option value="Ajman">Ajman</option>
+                                <option value="Umm Al Quwain">Umm Al Quwain</option>
+                                <option value="Fujairah">Fujairah</option>
+                                <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="weather" class="form-label">Weather Conditions</label>
+                            <select class="form-select" id="weather" name="weather" required>
+                                <option value="" selected disabled>Select weather</option>
+                                <option value="Clear">Clear</option>
+                                <option value="Cloudy">Cloudy</option>
+                                <option value="Rain">Rain</option>
+                                <option value="Fog">Fog</option>
+                                <option value="Sandstorm">Sandstorm</option>
+                                <option value="Extreme Heat">Extreme Heat</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="road_condition" class="form-label">Road Condition</label>
+                            <select class="form-select" id="road_condition" name="road_condition" required>
+                                <option value="" selected disabled>Select condition</option>
+                                <option value="Good">Good</option>
+                                <option value="Average">Average</option>
+                                <option value="Poor">Poor</option>
+                                <option value="Under Construction">Under Construction</option>
+                                <option value="Potholes">Potholes</option>
+                                <option value="Flooded">Flooded</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="traffic_level" class="form-label">Traffic Level</label>
+                            <select class="form-select" id="traffic_level" name="traffic_level" required>
+                                <option value="" selected disabled>Select traffic</option>
+                                <option value="Light">Light</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Heavy">Heavy</option>
+                                <option value="Gridlock">Gridlock</option>
+                                <option value="Accident">Accident</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="proofOfDeliveryContainer">
+                        <label class="form-label">Proof of Delivery</label>
+                        <div class="d-flex flex-wrap gap-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="signatureCollected">
+                                <label class="form-check-label" for="signatureCollected">
+                                    Signature Collected
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="photoTaken">
+                                <label class="form-check-label" for="photoTaken">
+                                    Photo Taken
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="idVerified">
+                                <label class="form-check-label" for="idVerified">
+                                    ID Verified
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row" id="proofUploadContainer">
+                            <div class="col-md-6 mb-3">
+                                <label for="signatureUpload" class="form-label small text-muted">Upload Signature</label>
+                                <input type="file" class="form-control form-control-sm" id="signatureUpload" accept="image/*">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="photoUpload" class="form-label small text-muted">Upload Delivery Photo</label>
+                                <input type="file" class="form-control form-control-sm" id="photoUpload" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="issueReportContainer" style="display: none;">
+                        <label for="issueType" class="form-label">Issue Type</label>
+                        <select class="form-select mb-3" id="issueType">
+                            <option value="" selected disabled>Select issue type</option>
+                            <option value="address_not_found">Address Not Found</option>
+                            <option value="customer_unavailable">Customer Unavailable</option>
+                            <option value="package_damaged">Package Damaged</option>
+                            <option value="wrong_address">Wrong Address Information</option>
+                            <option value="unsafe_location">Unsafe Delivery Location</option>
+                            <option value="weather_conditions">Severe Weather Conditions</option>
+                            <option value="other">Other</option>
+                        </select>
+                        
+                        <label for="issueDescription" class="form-label">Issue Description</label>
+                        <textarea class="form-control mb-3" id="issueDescription" rows="3" placeholder="Describe the issue in detail..."></textarea>
+                        
+                        <label for="cause_of_issue" class="form-label">Cause of Issue</label>
+                        <select class="form-select mb-3" id="cause_of_issue" name="cause_of_issue">
+                            <option value="" selected disabled>Select cause</option>
+                            <option value="Weather Related">Weather Related</option>
+                            <option value="Traffic Delay">Traffic Delay</option>
+                            <option value="Packaging Issue">Packaging Issue</option>
+                            <option value="Address Error">Address Error</option>
+                            <option value="Customer Unavailable">Customer Unavailable</option>
+                            <option value="Vehicle Problem">Vehicle Problem</option>
+                            <option value="Fragile Risk">Fragile Risk</option>
+                            <option value="Navigation Error">Navigation Error</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        
+                        <label for="issuePhoto" class="form-label">Upload Photos (Optional)</label>
+                        <input type="file" class="form-control" id="issuePhoto" accept="image/*" multiple>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="additionalNotes" class="form-label">Additional Notes</label>
+                        <textarea class="form-control" id="additionalNotes" rows="2" placeholder="Any additional notes or comments about the delivery..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-secondary" id="saveAsDraftBtn">
+                            <i class="fas fa-save me-1"></i> Save as Draft
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i> Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Delivery Information</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="deliveryInfoList">
+                    <div class="list-group-item py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Customer</h6>
+                        </div>
+                        <p class="mb-1" id="customerInfo">--</p>
+                    </div>
+                    <div class="list-group-item py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Delivery Address</h6>
+                        </div>
+                        <p class="mb-1" id="deliveryAddress">--</p>
+                    </div>
+                    <div class="list-group-item py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Expected Delivery Time</h6>
+                        </div>
+                        <p class="mb-1" id="expectedDeliveryTime">--</p>
+                    </div>
+                    <div class="list-group-item py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Package Information</h6>
+                        </div>
+                        <p class="mb-1" id="packageInfo">--</p>
+                    </div>
+                    <div class="list-group-item py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Special Instructions</h6>
+                        </div>
+                        <p class="mb-1" id="specialInstructions">--</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-phone-alt me-2"></i>Contact Information</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Customer Support</h6>
+                            <span class="badge bg-primary rounded-pill">24/7</span>
+                        </div>
+                        <p class="mb-1">+971 800 123 4567</p>
+                        <div class="btn-group btn-group-sm mt-2">
+                            <button type="button" class="btn btn-outline-primary">
+                                <i class="fas fa-phone-alt me-1"></i> Call
+                            </button>
+                            <button type="button" class="btn btn-outline-success">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-group-item py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Dispatch Center</h6>
+                            <span class="badge bg-secondary rounded-pill">Office Hours</span>
+                        </div>
+                        <p class="mb-1">+971 4 123 4567</p>
+                        <div class="btn-group btn-group-sm mt-2">
+                            <button type="button" class="btn btn-outline-primary">
+                                <i class="fas fa-phone-alt me-1"></i> Call
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Listen for delivery status changes to show/hide relevant sections
+        document.getElementById('deliveryStatus').addEventListener('change', function() {
+            const issueContainer = document.getElementById('issueReportContainer');
+            const proofContainer = document.getElementById('proofOfDeliveryContainer');
+            
+            if (this.value === 'delivered') {
+                proofContainer.style.display = 'block';
+                issueContainer.style.display = 'none';
+                document.getElementById('cause_of_issue').value = 'None';
+            } else if (['attempted', 'cancelled', 'delayed', 'returned'].includes(this.value)) {
+                proofContainer.style.display = 'none';
+                issueContainer.style.display = 'block';
+            } else {
+                proofContainer.style.display = 'none';
+                issueContainer.style.display = 'none';
+            }
+        });
+        
+        // Pre-fill current date and time
+        const now = new Date();
+        const formattedDateTime = now.toISOString().slice(0, 16);
+        document.getElementById('deliveryDateTime').value = formattedDateTime;
+        
+        // Update hidden time field with 24-hour format
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        document.getElementById('time').value = `${hours}:${minutes}`;
+        
+        // Handle lookup when order ID is entered or scanned
+        document.getElementById('delivery_id').addEventListener('change', function() {
+            if (this.value) {
+                // Simulate fetching order data (replace with actual API call)
+                fetchOrderData(this.value);
+            }
+        });
+        
+        // Scan QR button click handler
+        document.getElementById('scanQrBtn').addEventListener('click', function() {
+            // Simulate QR code scanning (this would be replaced by actual scanner logic)
+            alert('QR scanning functionality would be implemented here');
+            // For demo purposes, we'll just set a value
+            document.getElementById('delivery_id').value = 'ORD-7835';
+            fetchOrderData('ORD-7835');
+        });
+        
+        // Form submission
+        document.getElementById('deliveryReportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Update time field with current time in 24-hour format if it hasn't been set
+            if (!document.getElementById('time').value) {
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                document.getElementById('time').value = `${hours}:${minutes}`;
+            }
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+            submitBtn.disabled = true;
+            
+            // Submit the form
+            this.submit();
+        });
+        
+        // Save as draft button
+        document.getElementById('saveAsDraftBtn').addEventListener('click', function() {
+            showToast('Report saved as draft', 'info');
+        });
+        
+        // Function to fetch order data
+        function fetchOrderData(orderId) {
+            // Simulate API call delay
+            const btn = document.getElementById('scanQrBtn');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                // Sample data (this would come from an API)
+                const orderData = {
+                    customer: 'Tech Innovators LLC',
+                    address: 'Dubai Internet City, Block D, Office 305',
+                    expectedTime: 'Today, 14:00 - 16:00',
+                    packageInfo: 'Electronics, 2 boxes (Medium, Small), Weight: 5.3 kg',
+                    specialInstructions: 'Call customer before arrival. Deliver to reception desk if customer unavailable. Fragile items.'
+                };
+                
+                // Update the delivery information panel
+                document.getElementById('customerInfo').textContent = orderData.customer;
+                document.getElementById('deliveryAddress').textContent = orderData.address;
+                document.getElementById('expectedDeliveryTime').textContent = orderData.expectedTime;
+                document.getElementById('packageInfo').textContent = orderData.packageInfo;
+                document.getElementById('specialInstructions').textContent = orderData.specialInstructions;
+                
+                // Reset button
+                btn.innerHTML = '<i class="fas fa-qrcode"></i>';
+                btn.disabled = false;
+                
+                // Show toast notification
+                showToast('Order details loaded', 'info');
+            }, 1000);
+        }
+        
+        // Function to reset order info
+        function resetOrderInfo() {
+            document.getElementById('customerInfo').textContent = '--';
+            document.getElementById('deliveryAddress').textContent = '--';
+            document.getElementById('expectedDeliveryTime').textContent = '--';
+            document.getElementById('packageInfo').textContent = '--';
+            document.getElementById('specialInstructions').textContent = '--';
+        }
+        
+        // Function to show toast notifications
+        function showToast(message, type) {
+            // Create toast element
+            const toastContainer = document.createElement('div');
+            toastContainer.style.position = 'fixed';
+            toastContainer.style.top = '20px';
+            toastContainer.style.right = '20px';
+            toastContainer.style.zIndex = '9999';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast show bg-${type} text-white`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="toast-header bg-${type} text-white">
+                    <strong class="me-auto">Notification</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                document.body.removeChild(toastContainer);
+            }, 3000);
+        }
+    });
+</script>
+{% endblock %} 

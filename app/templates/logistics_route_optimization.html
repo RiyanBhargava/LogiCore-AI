@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+
+{% block title %}Route Optimization - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Route Optimization</h2>
+        <p class="lead">Plan optimal delivery routes to reduce transit times and improve efficiency.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-4 mb-4 mb-lg-0">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Route Settings</h5>
+            </div>
+            <div class="card-body">
+                <form id="routeOptimizationForm">
+                    <div class="mb-3">
+                        <label for="startingPoint" class="form-label">Starting Point</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <input type="text" class="form-control" id="startingPoint" placeholder="Enter warehouse location">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="deliveryDate" class="form-label">Delivery Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" class="form-control" id="deliveryDate">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="vehicleType" class="form-label">Vehicle Type</label>
+                        <select class="form-select" id="vehicleType">
+                            <option value="van">Delivery Van</option>
+                            <option value="truck">Small Truck</option>
+                            <option value="large_truck">Large Truck</option>
+                            <option value="motorcycle">Motorcycle</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="priorityLevel" class="form-label">Priority Level</label>
+                        <select class="form-select" id="priorityLevel">
+                            <option value="standard">Standard</option>
+                            <option value="express">Express</option>
+                            <option value="same_day">Same Day</option>
+                            <option value="next_day">Next Day</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Optimization Preference</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="optimizationPreference" id="shortestTime" value="time" checked>
+                            <label class="form-check-label" for="shortestTime">
+                                Shortest Time
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="optimizationPreference" id="shortestDistance" value="distance">
+                            <label class="form-check-label" for="shortestDistance">
+                                Shortest Distance
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="optimizationPreference" id="lowestFuelCost" value="fuel">
+                            <label class="form-check-label" for="lowestFuelCost">
+                                Lowest Fuel Cost
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Additional Options</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="avoidTollRoads">
+                            <label class="form-check-label" for="avoidTollRoads">
+                                Avoid Toll Roads
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="avoidHighways">
+                            <label class="form-check-label" for="avoidHighways">
+                                Avoid Highways
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="considerTraffic" checked>
+                            <label class="form-check-label" for="considerTraffic">
+                                Consider Real-time Traffic
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary w-100" id="optimizeRoutesBtn">
+                        <i class="fas fa-route me-2"></i>Optimize Routes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-map me-2"></i>Route Map</h5>
+            </div>
+            <div class="card-body p-0">
+                <div id="routeMap" style="height: 400px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                    <p class="text-muted">Route map will be displayed here after optimization</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Delivery Sequence</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="deliverySequenceTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sequence</th>
+                                <th>Order ID</th>
+                                <th>Delivery Address</th>
+                                <th>Customer</th>
+                                <th>Time Window</th>
+                                <th>ETA</th>
+                                <th>Distance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <i class="fas fa-info-circle me-2 text-info"></i>
+                                    Click "Optimize Routes" to calculate the optimal delivery sequence
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 text-primary">
+                                <i class="fas fa-road fa-lg"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Total Distance</small>
+                                <span id="totalDistance" class="fw-bold">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 text-success">
+                                <i class="fas fa-clock fa-lg"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Total Time</small>
+                                <span id="totalTime" class="fw-bold">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 text-warning">
+                                <i class="fas fa-gas-pump fa-lg"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Fuel Cost</small>
+                                <span id="fuelCost" class="fw-bold">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 text-danger">
+                                <i class="fas fa-carbon fa-lg"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">CO2 Emissions</small>
+                                <span id="co2Emissions" class="fw-bold">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Route Analytics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6>Route Efficiency Comparison</h6>
+                        <div style="height: 200px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                            <p class="text-muted">Efficiency chart will be displayed here</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6>Time-of-Day Traffic Impact</h6>
+                        <div style="height: 200px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                            <p class="text-muted">Traffic impact chart will be displayed here</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="alert alert-info">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-lightbulb text-warning me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">Route Optimization Insight</h6>
+                                    <p class="mb-0 small">Optimizing this route improves delivery time by approximately 18% compared to the standard route.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-success">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-dollar-sign text-success me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">Cost Saving</h6>
+                                    <p class="mb-0 small">This optimized route saves approximately 12% in fuel costs and reduces vehicle wear and tear.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-primary">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-leaf text-primary me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">Environmental Impact</h6>
+                                    <p class="mb-0 small">Reduces carbon emissions by approximately 15% compared to the standard route.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Event listener for optimize routes button
+        document.getElementById('optimizeRoutesBtn').addEventListener('click', function() {
+            // Show loading state
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Optimizing...';
+            this.disabled = true;
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // Display sample data in the table
+                displaySampleRouteData();
+                
+                // Reset button state
+                this.innerHTML = '<i class="fas fa-route me-2"></i>Optimize Routes';
+                this.disabled = false;
+                
+                // Show success toast
+                showToast('Routes optimized successfully!', 'success');
+            }, 2000);
+        });
+        
+        function displaySampleRouteData() {
+            // Sample data for demonstration
+            const sampleData = [
+                {
+                    sequence: 1,
+                    orderId: '#ORD-7829',
+                    address: 'Dubai Marina, Tower A5',
+                    customer: 'Emirates Electronics',
+                    timeWindow: '9:00 AM - 11:00 AM',
+                    eta: '9:30 AM',
+                    distance: '0.0 km'
+                },
+                {
+                    sequence: 2,
+                    orderId: '#ORD-7832',
+                    address: 'Jumeirah Beach Residence, Building 7',
+                    customer: 'Beach Electronics',
+                    timeWindow: '10:00 AM - 12:00 PM',
+                    eta: '10:15 AM',
+                    distance: '3.2 km'
+                },
+                {
+                    sequence: 3,
+                    orderId: '#ORD-7834',
+                    address: 'Dubai Media City, Building 3',
+                    customer: 'Media Solutions',
+                    timeWindow: '10:30 AM - 12:30 PM',
+                    eta: '11:05 AM',
+                    distance: '4.7 km'
+                },
+                {
+                    sequence: 4,
+                    orderId: '#ORD-7835',
+                    address: 'Dubai Internet City, Block D',
+                    customer: 'Tech Innovators',
+                    timeWindow: '11:00 AM - 1:00 PM',
+                    eta: '11:30 AM',
+                    distance: '2.1 km'
+                },
+                {
+                    sequence: 5,
+                    orderId: '#ORD-7837',
+                    address: 'Knowledge Village, Building 2',
+                    customer: 'EdTech Solutions',
+                    timeWindow: '12:00 PM - 2:00 PM',
+                    eta: '12:15 PM',
+                    distance: '1.8 km'
+                }
+            ];
+            
+            // Clear existing table data
+            const tableBody = document.querySelector('#deliverySequenceTable tbody');
+            tableBody.innerHTML = '';
+            
+            // Insert sample data
+            sampleData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.sequence}</td>
+                    <td>${item.orderId}</td>
+                    <td>${item.address}</td>
+                    <td>${item.customer}</td>
+                    <td>${item.timeWindow}</td>
+                    <td>${item.eta}</td>
+                    <td>${item.distance}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary" title="View details"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Update summary stats
+            document.getElementById('totalDistance').textContent = '11.8 km';
+            document.getElementById('totalTime').textContent = '2.7 hours';
+            document.getElementById('fuelCost').textContent = '35 AED';
+            document.getElementById('co2Emissions').textContent = '7.2 kg';
+            
+            // Update the map placeholder
+            document.getElementById('routeMap').innerHTML = '<img src="https://via.placeholder.com/800x400/f8f9fa/6c757d?text=Route+Map+Visualization" class="img-fluid" alt="Route Map">';
+        }
+        
+        function showToast(message, type) {
+            // Create toast element
+            const toastContainer = document.createElement('div');
+            toastContainer.style.position = 'fixed';
+            toastContainer.style.top = '20px';
+            toastContainer.style.right = '20px';
+            toastContainer.style.zIndex = '9999';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast show bg-${type} text-white`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="toast-header bg-${type} text-white">
+                    <strong class="me-auto">Notification</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                document.body.removeChild(toastContainer);
+            }, 3000);
+        }
+    });
+</script>
+{% endblock %} 

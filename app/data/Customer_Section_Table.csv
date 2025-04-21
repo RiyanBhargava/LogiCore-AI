@@ -1,0 +1,103 @@
+Delivery_ID,Location,Time,Issue_Reported,Item_Type,Overall_Rating
+D001,Sharjah,19:00,Broken_Item,Electronics,2
+D002,Dubai,14:00,Late_Delivery,Clothes,3
+D003,Ajman,21:00,Damaged_Packaging,Furniture,1
+D004,Sharjah,11:00,,Electronics,5
+D005,Dubai,17:00,Leakage,Cosmetics,2
+D006,Abu Dhabi,08:00,,Books,5
+D007,Sharjah,15:30,Damaged_Packaging,Glassware,2
+D008,Dubai,12:45,,Electronics,4
+D009,Ajman,18:15,Broken_Item,Glassware,1
+D010,Sharjah,09:20,,Books,5
+D011,Dubai,16:30,Minor_Damage,Cosmetics,3
+D012,Abu Dhabi,07:45,,Books,5
+D013,Sharjah,14:20,,Clothing,4
+D014,Dubai,11:30,,Electronics,5
+D015,Ajman,20:15,Damaged_Packaging,Furniture,2
+D016,Sharjah,10:00,,Books,5
+D017,Dubai,17:45,Leakage,Cosmetics,1
+D018,Abu Dhabi,08:30,,Books,5
+D019,Sharjah,15:45,Minor_Damage,Glassware,3
+D020,Dubai,13:00,Late_Delivery,Clothing,3
+D021,Ajman,19:30,Broken_Item,Electronics,1
+D022,Sharjah,11:15,,Electronics,5
+D023,Dubai,16:45,Leakage,Cosmetics,2
+D024,Abu Dhabi,07:30,,Books,5
+D025,Sharjah,14:30,,Clothing,4
+D026,Dubai,12:00,Late_Delivery,Electronics,3
+D027,Ajman,20:45,Damaged_Packaging,Furniture,1
+D028,Sharjah,09:45,,Books,5
+D029,Dubai,17:30,Leakage,Cosmetics,2
+D030,Abu Dhabi,08:15,,Books,5
+D031,Sharjah,15:00,,Clothing,4
+D032,Dubai,11:45,,Electronics,5
+D033,Ajman,19:45,Broken_Item,Glassware,1
+D034,Sharjah,10:30,,Books,5
+D035,Dubai,18:00,Leakage,Cosmetics,1
+D036,Abu Dhabi,07:15,,Books,5
+D037,Sharjah,14:45,,Clothing,4
+D038,Dubai,12:30,Late_Delivery,Electronics,3
+D039,Ajman,21:15,Damaged_Packaging,Furniture,1
+D040,Sharjah,09:00,,Books,5
+D041,Dubai,16:15,Late_Delivery,Fresh Produce,2
+D042,Abu Dhabi,08:45,,Books,5
+D043,Sharjah,13:30,,Toys,4
+D044,Dubai,11:00,,Musical Instruments,5
+D045,Ajman,20:00,Navigation_Error,Sports Equipment,3
+D046,Sharjah,10:15,,Books,5
+D047,Dubai,17:15,Damaged_Packaging,Wine,2
+D048,Abu Dhabi,07:00,,Books,5
+D049,Sharjah,15:15,,Clothing,4
+D050,Dubai,12:15,Late_Delivery,Electronics,3
+D051,Ajman,19:00,Broken_Item,Glassware,1
+D052,Sharjah,09:30,,Books,5
+D053,Dubai,16:00,Leakage,Chemicals,1
+D054,Abu Dhabi,08:00,,Books,5
+D055,Sharjah,14:00,,Clothing,4
+D056,Dubai,11:30,,Electronics,5
+D057,Ajman,21:30,Navigation_Error,Automotive Parts,3
+D058,Sharjah,10:45,,Books,5
+D059,Dubai,17:00,Damaged_Packaging,Seafood,2
+D060,Abu Dhabi,07:30,,Books,5
+D061,Sharjah,19:30,Broken_Item,Electronics,2
+D062,Dubai,14:30,Late_Delivery,Clothes,3
+D063,Ajman,21:30,Damaged_Packaging,Furniture,1
+D064,Sharjah,11:30,,Electronics,5
+D065,Dubai,17:30,Leakage,Cosmetics,2
+D066,Abu Dhabi,08:30,,Books,5
+D067,Sharjah,16:00,Damaged_Packaging,Glassware,2
+D068,Dubai,13:15,,Electronics,4
+D069,Ajman,18:45,Broken_Item,Glassware,1
+D070,Sharjah,09:50,,Books,5
+D071,Dubai,17:00,Minor_Damage,Cosmetics,3
+D072,Abu Dhabi,08:15,,Books,5
+D073,Sharjah,14:50,,Clothing,4
+D074,Dubai,12:00,,Electronics,5
+D075,Ajman,20:45,Damaged_Packaging,Furniture,2
+D076,Sharjah,10:30,,Books,5
+D077,Dubai,18:15,Leakage,Cosmetics,1
+D078,Abu Dhabi,09:00,,Books,5
+D079,Sharjah,16:15,Minor_Damage,Glassware,3
+D080,Dubai,13:30,Late_Delivery,Clothing,3
+D081,Ajman,20:00,Broken_Item,Electronics,1
+D082,Sharjah,11:45,,Electronics,5
+D083,Dubai,17:15,Leakage,Cosmetics,2
+D084,Abu Dhabi,08:00,,Books,5
+D085,Sharjah,15:00,,Clothing,4
+D086,Dubai,12:30,Late_Delivery,Electronics,3
+D087,Ajman,21:15,Damaged_Packaging,Furniture,1
+D088,Sharjah,10:15,,Books,5
+D089,Dubai,18:00,Leakage,Cosmetics,2
+D090,Abu Dhabi,08:45,,Books,5
+D091,Sharjah,15:30,,Clothing,4
+D092,Dubai,12:15,,Electronics,5
+D093,Ajman,20:15,Broken_Item,Glassware,1
+D094,Sharjah,11:00,,Books,5
+D095,Dubai,18:30,Leakage,Cosmetics,1
+D096,Abu Dhabi,07:45,,Books,5
+D097,Sharjah,15:15,,Clothing,4
+D098,Dubai,13:00,Late_Delivery,Electronics,3
+D099,Ajman,21:45,Damaged_Packaging,Furniture,1
+D100,Sharjah,09:30,,Books,5
+6969,Dubai,23: 50,Broken_Item,Electronics,3
+1234,Dubai,12:30,Wrong_Item,Electronics,1

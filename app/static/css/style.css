@@ -1,0 +1,263 @@
+/* Main Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0;
+    font-weight: bold;
+}
+
+/* Dashboard Styling */
+.dashboard-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card .card-body {
+    flex: 1;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 20px;
+}
+
+.stat-card i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    color: #0d6efd;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #6c757d;
+}
+
+/* Form Styling */
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+/* Map container */
+.map-container {
+    height: 500px;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Chart containers */
+.chart-container {
+    height: 400px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Authentication pages */
+.auth-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.auth-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #0d6efd;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Home page */
+.hero-section {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    color: white;
+    padding: 5rem 0;
+    margin-bottom: 3rem;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.feature-card {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.feature-card i {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: #3498db;
+}
+
+/* Feedback form */
+.rating-container {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-container input {
+    display: none;
+}
+
+.rating-container label {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
+    background-color: #ddd;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.rating-container label:hover,
+.rating-container label:hover ~ label,
+.rating-container input:checked ~ label {
+    background-color: #0d6efd;
+}
+
+/* Prediction result */
+.prediction-result {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid #0d6efd;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.prediction-result strong {
+    color: #0d6efd;
+}
+
+/* Problem areas list */
+.problem-areas-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.problem-areas-list li {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    background-color: #fff3cd;
+    border-left: 5px solid #ffc107;
+    border-radius: 5px;
+}
+
+/* Statistics card styling */
+.stat-card {
+    padding: 1rem;
+}
+
+.stat-card i {
+    font-size: 2rem;
+    color: #3498db;
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+/* Map container styling */
+.map-container {
+    width: 100%;
+    height: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Agentic AI badge */
+.agentic-ai-badge {
+    background-color: #563d7c;
+    color: white;
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.agentic-ai-badge i {
+    margin-right: 5px;
+} 

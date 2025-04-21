@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Create an Account</h2>
+    
+    <form method="POST" action="{{ url_for('signup') }}">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+            <div class="form-text">We'll never share your email with anyone else.</div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+            <div class="form-text">Use at least 8 characters with a mix of letters, numbers & symbols.</div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="role" class="form-label">Account Type</label>
+            <select class="form-select" id="role" name="role" required>
+                <option value="" selected disabled>Select your role</option>
+                <option value="customer">Customer</option>
+                <option value="driver">Driver</option>
+                <option value="company">Company</option>
+                <option value="packaging">Packaging Specialist</option>
+            </select>
+        </div>
+        
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+    </form>
+    
+    <div class="auth-footer">
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+    </div>
+</div>
+{% endblock %} 

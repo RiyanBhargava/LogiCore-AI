@@ -1,0 +1,103 @@
+Delivery_ID,Driver_ID,Location,Time,Weather,Road_Condition,Traffic_Level,Cause_of_Issue
+D001,DR001,Sharjah,19:00,Rainy,Potholes,High,Fragile_Risk
+D002,DR002,Dubai,14:00,Sunny,Smooth,Moderate,Traffic
+D003,DR003,Ajman,21:00,Foggy,Uneven,High,Road_Shock
+D004,DR001,Sharjah,11:00,Sunny,Good,Low,
+D005,DR006,Dubai,17:00,Dusty,Cracks,High,Heat_Damage
+D006,DR004,Abu Dhabi,08:00,Sunny,Smooth,Low,
+D007,DR005,Sharjah,15:30,Dusty,Bumpy,Moderate,Road_Shock
+D008,DR002,Dubai,12:45,Sunny,Good,Low,
+D009,DR003,Ajman,18:15,Rainy,Potholes,High,Road_Shock
+D010,DR001,Sharjah,09:20,Sunny,Smooth,Low,
+D011,DR006,Dubai,16:30,Dusty,Cracks,Moderate,Heat_Damage
+D012,DR004,Abu Dhabi,07:45,Sunny,Good,Low,
+D013,DR005,Sharjah,14:20,Sunny,Bumpy,Moderate,
+D014,DR002,Dubai,11:30,Sunny,Good,Low,
+D015,DR003,Ajman,20:15,Foggy,Uneven,High,Road_Shock
+D016,DR001,Sharjah,10:00,Sunny,Smooth,Low,
+D017,DR006,Dubai,17:45,Dusty,Cracks,High,Heat_Damage
+D018,DR004,Abu Dhabi,08:30,Sunny,Good,Low,
+D019,DR005,Sharjah,15:45,Rainy,Bumpy,Moderate,Road_Shock
+D020,DR002,Dubai,13:00,Sunny,Good,Moderate,Traffic
+D021,DR003,Ajman,19:30,Foggy,Uneven,High,Road_Shock
+D022,DR001,Sharjah,11:15,Sunny,Good,Low,
+D023,DR006,Dubai,16:45,Dusty,Cracks,High,Heat_Damage
+D024,DR004,Abu Dhabi,07:30,Sunny,Good,Low,
+D025,DR005,Sharjah,14:30,Sunny,Bumpy,Moderate,
+D026,DR002,Dubai,12:00,Sunny,Good,Moderate,Traffic
+D027,DR003,Ajman,20:45,Rainy,Uneven,High,Road_Shock
+D028,DR001,Sharjah,09:45,Sunny,Good,Low,
+D029,DR006,Dubai,17:30,Dusty,Cracks,High,Heat_Damage
+D030,DR004,Abu Dhabi,08:15,Sunny,Good,Low,
+D031,DR005,Sharjah,15:00,Sunny,Bumpy,Moderate,
+D032,DR002,Dubai,11:45,Sunny,Good,Low,
+D033,DR003,Ajman,19:45,Foggy,Uneven,High,Road_Shock
+D034,DR001,Sharjah,10:30,Sunny,Good,Low,
+D035,DR006,Dubai,18:00,Dusty,Cracks,High,Heat_Damage
+D036,DR004,Abu Dhabi,07:15,Sunny,Good,Low,
+D037,DR005,Sharjah,14:45,Sunny,Bumpy,Moderate,
+D038,DR002,Dubai,12:30,Sunny,Smooth,Moderate,Traffic
+D039,DR003,Ajman,21:15,Foggy,Uneven,High,Road_Shock
+D040,DR001,Sharjah,09:00,Sunny,Good,Low,
+D041,DR007,Dubai,16:15,Rainy,Flooded,High,Delay
+D042,DR008,Abu Dhabi,08:45,Sunny,Good,Low,
+D043,DR009,Sharjah,13:30,Sunny,Smooth,Low,
+D044,DR010,Dubai,11:00,Sunny,Good,Moderate,
+D045,DR007,Ajman,20:00,Foggy,Uneven,High,Navigation_Error
+D046,DR008,Sharjah,10:15,Sunny,Good,Low,
+D047,DR009,Dubai,17:15,Dusty,Cracks,High,Package_Damage
+D048,DR010,Abu Dhabi,07:00,Sunny,Good,Low,
+D049,DR007,Sharjah,15:15,Sunny,Bumpy,Moderate,
+D050,DR008,Dubai,12:15,Sunny,Good,Moderate,Traffic
+D051,DR009,Ajman,19:00,Rainy,Uneven,High,Road_Shock
+D052,DR010,Sharjah,09:30,Sunny,Good,Low,
+D053,DR007,Dubai,16:00,Dusty,Cracks,High,Heat_Damage
+D054,DR008,Abu Dhabi,08:00,Sunny,Good,Low,
+D055,DR009,Sharjah,14:00,Sunny,Bumpy,Moderate,
+D056,DR010,Dubai,11:30,Sunny,Good,Moderate,
+D057,DR007,Ajman,21:30,Foggy,Uneven,High,Navigation_Error
+D058,DR008,Sharjah,10:45,Sunny,Good,Low,
+D059,DR009,Dubai,17:00,Dusty,Cracks,High,Package_Damage
+D060,DR010,Abu Dhabi,07:30,Sunny,Good,Low,
+D061,DR001,Sharjah,19:30,Rainy,Potholes,High,Fragile_Risk
+D062,DR002,Dubai,14:30,Sunny,Smooth,Moderate,Traffic
+D063,DR003,Ajman,21:30,Foggy,Uneven,High,Road_Shock
+D064,DR001,Sharjah,11:30,Sunny,Good,Low,
+D065,DR006,Dubai,17:30,Dusty,Cracks,High,Heat_Damage
+D066,DR004,Abu Dhabi,08:30,Sunny,Smooth,Low,
+D067,DR005,Sharjah,16:00,Dusty,Bumpy,Moderate,Road_Shock
+D068,DR002,Dubai,13:15,Sunny,Good,Low,
+D069,DR003,Ajman,18:45,Rainy,Potholes,High,Road_Shock
+D070,DR001,Sharjah,09:50,Sunny,Smooth,Low,
+D071,DR006,Dubai,17:00,Dusty,Cracks,Moderate,Heat_Damage
+D072,DR004,Abu Dhabi,08:15,Sunny,Good,Low,
+D073,DR005,Sharjah,14:50,Sunny,Bumpy,Moderate,
+D074,DR002,Dubai,12:00,Sunny,Good,Low,
+D075,DR003,Ajman,20:45,Foggy,Uneven,High,Road_Shock
+D076,DR001,Sharjah,10:30,Sunny,Smooth,Low,
+D077,DR006,Dubai,18:15,Dusty,Cracks,High,Heat_Damage
+D078,DR004,Abu Dhabi,09:00,Sunny,Good,Low,
+D079,DR005,Sharjah,16:15,Rainy,Bumpy,Moderate,Road_Shock
+D080,DR002,Dubai,13:30,Sunny,Good,Moderate,Traffic
+D081,DR003,Ajman,20:00,Foggy,Uneven,High,Road_Shock
+D082,DR001,Sharjah,11:45,Sunny,Good,Low,
+D083,DR006,Dubai,17:15,Dusty,Cracks,High,Heat_Damage
+D084,DR004,Abu Dhabi,08:00,Sunny,Good,Low,
+D085,DR005,Sharjah,15:00,Sunny,Bumpy,Moderate,
+D086,DR002,Dubai,12:30,Sunny,Good,Moderate,Traffic
+D087,DR003,Ajman,21:15,Rainy,Uneven,High,Road_Shock
+D088,DR001,Sharjah,10:15,Sunny,Good,Low,
+D089,DR006,Dubai,18:00,Dusty,Cracks,High,Heat_Damage
+D090,DR004,Abu Dhabi,08:45,Sunny,Good,Low,
+D091,DR005,Sharjah,15:30,Sunny,Bumpy,Moderate,
+D092,DR002,Dubai,12:15,Sunny,Good,Low,
+D093,DR003,Ajman,20:15,Foggy,Uneven,High,Road_Shock
+D094,DR001,Sharjah,11:00,Sunny,Good,Low,
+D095,DR006,Dubai,18:30,Dusty,Cracks,High,Heat_Damage
+D096,DR004,Abu Dhabi,07:45,Sunny,Good,Low,
+D097,DR005,Sharjah,15:15,Sunny,Bumpy,Moderate,
+D098,DR002,Dubai,13:00,Sunny,Smooth,Moderate,Traffic
+D099,DR003,Ajman,21:45,Foggy,Uneven,High,Road_Shock
+D100,DR001,Sharjah,09:30,Sunny,Good,Low,None 
+ABCD,5,"25.2893621, 55.4467799",9:48:10 PM,Rain,Poor,Accident,
+215D,5,Abu Dhabi,22:12,Fog,Good,Light,

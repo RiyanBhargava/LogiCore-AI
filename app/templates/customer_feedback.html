@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Feedback - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Submit Delivery Feedback</h2>
+        <p class="lead">Your feedback helps us improve our delivery services and optimize the entire logistics chain.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-comment-alt me-2"></i> Delivery Feedback Form
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('customer_feedback') }}" method="POST" class="form-container">
+                    <div class="mb-3">
+                        <label for="delivery_id" class="form-label">Delivery ID</label>
+                        <input type="text" class="form-control" id="delivery_id" name="delivery_id" placeholder="e.g. D123" required>
+                        <div class="form-text">Enter the ID of the delivery you're providing feedback for.</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="location" class="form-label">Delivery Location</label>
+                            <select class="form-select" id="location" name="location" required>
+                                <option value="" selected disabled>Select location</option>
+                                <option value="Dubai">Dubai</option>
+                                <option value="Abu Dhabi">Abu Dhabi</option>
+                                <option value="Sharjah">Sharjah</option>
+                                <option value="Ajman">Ajman</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="time" class="form-label">Delivery Time</label>
+                            <input type="text" class="form-control" id="time" name="time" placeholder="e.g. 14:30" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="issue_reported" class="form-label">Issues Encountered</label>
+                        <select class="form-select" id="issue_reported" name="issue_reported" required>
+                            <option value="None">No Issues</option>
+                            <option value="Late_Delivery">Late Delivery</option>
+                            <option value="Damaged_Packaging">Damaged Packaging</option>
+                            <option value="Broken_Item">Broken Item</option>
+                            <option value="Wrong_Item">Wrong Item</option>
+                            <option value="Missing_Item">Missing Item</option>
+                            <option value="Leakage">Leakage</option>
+                            <option value="Minor_Damage">Minor Damage</option>
+                            <option value="Navigation_Error">Driver Navigation Error</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="item_type" class="form-label">Item Type</label>
+                        <select class="form-select" id="item_type" name="item_type" required>
+                            <option value="" selected disabled>Select item type</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Books">Books</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Cosmetics">Cosmetics</option>
+                            <option value="Glassware">Glassware</option>
+                            <option value="Fresh Produce">Fresh Produce</option>
+                            <option value="Toys">Toys</option>
+                            <option value="Seafood">Seafood</option>
+                            <option value="Chemicals">Chemicals</option>
+                            <option value="Wine">Wine</option>
+                            <option value="Automotive Parts">Automotive Parts</option>
+                            <option value="Sports Equipment">Sports Equipment</option>
+                            <option value="Musical Instruments">Musical Instruments</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Overall Rating</label>
+                        <div class="rating-container">
+                            <input type="radio" id="star5" name="overall_rating" value="5" required>
+                            <label for="star5">5</label>
+                            <input type="radio" id="star4" name="overall_rating" value="4">
+                            <label for="star4">4</label>
+                            <input type="radio" id="star3" name="overall_rating" value="3">
+                            <label for="star3">3</label>
+                            <input type="radio" id="star2" name="overall_rating" value="2">
+                            <label for="star2">2</label>
+                            <input type="radio" id="star1" name="overall_rating" value="1">
+                            <label for="star1">1</label>
+                        </div>
+                        <div class="form-text">Please rate your overall delivery experience (1 = Poor, 5 = Excellent).</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Upload Image of Damaged Product (Optional)</label>
+                        <div class="d-grid gap-2">
+                            <button type="button" id="camera-button" class="btn btn-outline-secondary">
+                                <i class="fas fa-camera me-2"></i> Take Photo
+                            </button>
+                        </div>
+                        
+                        <div id="camera-container" class="d-none mt-3">
+                            <div class="mb-3">
+                                <video id="camera-preview" autoplay class="w-100 rounded"></video>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" id="submit-image" class="btn btn-success flex-grow-1">
+                                    <i class="fas fa-check me-2"></i> Submit Image
+                                </button>
+                                <button type="button" id="cancel-image" class="btn btn-danger flex-grow-1">
+                                    <i class="fas fa-times me-2"></i> Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="additional_comments" class="form-label">Additional Comments</label>
+                        <textarea class="form-control" id="additional_comments" name="additional_comments" rows="3" placeholder="Please provide any additional details about your delivery experience..."></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

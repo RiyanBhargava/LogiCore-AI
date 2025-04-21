@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Delivery Issue Prediction - Logistics Optimization Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Delivery Issue Prediction</h2>
+        <p class="lead">Predict potential delivery issues before they occur using our AI-powered prediction system.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-truck me-2"></i> Delivery Context
+            </div>
+            <div class="card-body">
+                <form id="prediction-form" action="{{ url_for('delivery_prediction') }}" method="POST" class="form-container">
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Delivery Location</label>
+                        <select class="form-select" id="location" name="location" required>
+                            <option value="" selected disabled>Select location</option>
+                            <option value="Dubai">Dubai</option>
+                            <option value="Abu Dhabi">Abu Dhabi</option>
+                            <option value="Sharjah">Sharjah</option>
+                            <option value="Ajman">Ajman</option>
+                            <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                            <option value="Fujairah">Fujairah</option>
+                            <option value="Umm Al Quwain">Umm Al Quwain</option>
+                            <option value="Al Ain">Al Ain</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="time" class="form-label">Delivery Time</label>
+                        <select class="form-select" id="time" name="time" required>
+                            <option value="" selected disabled>Select time slot</option>
+                            <option value="Morning (8AM-12PM)">Morning (8AM-12PM)</option>
+                            <option value="Afternoon (12PM-4PM)">Afternoon (12PM-4PM)</option>
+                            <option value="Evening (4PM-8PM)">Evening (4PM-8PM)</option>
+                            <option value="Night (8PM-12AM)">Night (8PM-12AM)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="weather" class="form-label">Weather Condition</label>
+                        <select class="form-select" id="weather" name="weather" required>
+                            <option value="" selected disabled>Select weather condition</option>
+                            <option value="Clear">Clear</option>
+                            <option value="Cloudy">Cloudy</option>
+                            <option value="Rainy">Rainy</option>
+                            <option value="Sandstorm">Sandstorm</option>
+                            <option value="Foggy">Foggy</option>
+                            <option value="Hazy">Hazy</option>
+                            <option value="Humid">Humid</option>
+                            <option value="Windy">Windy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="road_condition" class="form-label">Road Condition</label>
+                        <select class="form-select" id="road_condition" name="road_condition" required>
+                            <option value="" selected disabled>Select road condition</option>
+                            <option value="Excellent">Excellent</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Poor">Poor</option>
+                            <option value="Under Construction">Under Construction</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="traffic_level" class="form-label">Traffic Level</label>
+                        <select class="form-select" id="traffic_level" name="traffic_level" required>
+                            <option value="" selected disabled>Select traffic level</option>
+                            <option value="Low">Low</option>
+                            <option value="Moderate">Moderate</option>
+                            <option value="High">High</option>
+                            <option value="Severe">Severe</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="item_type" class="form-label">Item Type</label>
+                        <select class="form-select" id="item_type" name="item_type" required>
+                            <option value="" selected disabled>Select item type</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Fresh Produce">Fresh Produce</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Books">Books</option>
+                            <option value="Pharmaceuticals">Pharmaceuticals</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Glassware">Glassware</option>
+                            <option value="Seafood">Seafood</option>
+                            <option value="Chemicals">Chemicals</option>
+                            <option value="Toys">Toys</option>
+                            <option value="Artwork">Artwork</option>
+                            <option value="Wine">Wine</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Predict Potential Issues</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-exclamation-triangle me-2"></i> Prediction Results
+            </div>
+            <div class="card-body">
+                {% if prediction %}
+                    <div class="prediction-result">
+                        <h3 class="mb-4">Issue Prediction:</h3>
+                        <div class="alert alert-{{ 'danger' if prediction_probability > 75 else 'warning' if prediction_probability > 40 else 'success' }} mb-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="display-4">{{ prediction_probability }}%</span>
+                                </div>
+                                <div class="col">
+                                    <strong>Risk of {{ prediction }}</strong>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar bg-{{ 'danger' if prediction_probability > 75 else 'warning' if prediction_probability > 40 else 'success' }}" 
+                                             role="progressbar" 
+                                             style="width: {{ prediction_probability }}%" 
+                                             aria-valuenow="{{ prediction_probability }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5>Contributing Factors:</h5>
+                            <ul class="list-group mb-3">
+                                {% for factor in contributing_factors %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ factor.name }}
+                                        <span class="badge bg-primary rounded-pill">{{ factor.weight }}%</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5>Recommended Actions:</h5>
+                            <ul class="list-group mb-3">
+                                {% for action in recommended_actions %}
+                                    <li class="list-group-item">{{ action }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm" type="button" disabled>
+                                <i class="fas fa-share-alt me-2"></i> Share prediction report (Coming soon)
+                            </button>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center my-5">
+                        <img src="https://via.placeholder.com/150?text=AI" alt="AI Prediction" class="img-fluid mb-4 rounded-circle">
+                        <h5>Enter delivery context details to receive AI-powered issue predictions</h5>
+                        <p class="text-muted">Our machine learning model analyzes delivery context factors to predict potential issues before they occur.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-chart-bar me-2"></i> Issue Probability by Location & Time
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Location</th>
+                                <th>Morning (8AM-12PM)</th>
+                                <th>Afternoon (12PM-4PM)</th>
+                                <th>Evening (4PM-8PM)</th>
+                                <th>Night (8PM-12AM)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Dubai</strong></td>
+                                <td class="bg-success text-white">15%</td>
+                                <td class="bg-warning">45%</td>
+                                <td class="bg-danger text-white">78%</td>
+                                <td class="bg-warning">42%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Abu Dhabi</strong></td>
+                                <td class="bg-success text-white">12%</td>
+                                <td class="bg-warning">38%</td>
+                                <td class="bg-warning">62%</td>
+                                <td class="bg-success text-white">25%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sharjah</strong></td>
+                                <td class="bg-success text-white">18%</td>
+                                <td class="bg-danger text-white">75%</td>
+                                <td class="bg-danger text-white">85%</td>
+                                <td class="bg-warning">40%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Al Ain</strong></td>
+                                <td class="bg-success text-white">10%</td>
+                                <td class="bg-success text-white">22%</td>
+                                <td class="bg-warning">35%</td>
+                                <td class="bg-success text-white">15%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="small text-muted mt-2">
+                    <span class="badge bg-success">Below 30%</span> = Low Risk,
+                    <span class="badge bg-warning">30-70%</span> = Medium Risk,
+                    <span class="badge bg-danger">Above 70%</span> = High Risk
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
