@@ -1,11 +1,16 @@
 flask
 flask-login
+flask-wtf
 pandas
 numpy
 joblib
 folium
 plotly
 werkzeug
+requests
+dash
+matplotlib
+seaborn
 langchain
 langchain-community
 langchain-ollama
