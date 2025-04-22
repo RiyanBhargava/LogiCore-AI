@@ -3,9 +3,10 @@ import pandas as pd
 import numpy as np
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import generate_password_hash, check_password_hash
 import joblib
-from datetime import datetime
+from datetime import datetime, timedelta
 import folium
 from folium import plugins
 import plotly.express as px
@@ -15,9 +16,40 @@ from werkzeug.utils import secure_filename
 # Import Agentic AI components
 from agentic.packaging_agent import PackagingAgent
 import requests
+# Import Dash components
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
+from flask import Response
+import io
+import base64
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import random
+import logging
 
 app = Flask(__name__)
 app.secret_key = 'logistics_platform_secret_key'
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_NAME'] = 'logistics_session'
+app.config['WTF_CSRF_TIME_LIMIT'] = 3600  # 1 hour CSRF token expiration
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
+
+# Exempt API routes from CSRF protection
+csrf.exempt('/api/predict_packaging')
+csrf.exempt('/api/predict_delivery_issues')
+csrf.exempt('/api/packaging/visualization')
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+app.logger.setLevel(logging.INFO)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -56,10 +88,19 @@ users = {
 
 @login_manager.user_loader
 def load_user(user_id):
-    for email, user_data in users.items():
-        if user_data['id'] == int(user_id):
-            return User(user_data['id'], email, user_data['role'])
-    return None
+    app.logger.debug(f"Loading user with ID: {user_id}")
+    try:
+        user_id = int(user_id)
+        for email, user_data in users.items():
+            if user_data['id'] == user_id:
+                user = User(user_data['id'], email, user_data['role'])
+                app.logger.debug(f"User loaded successfully: {email}, role: {user_data['role']}")
+                return user
+        app.logger.warning(f"User with ID {user_id} not found")
+        return None
+    except Exception as e:
+        app.logger.error(f"Error loading user: {str(e)}")
+        return None
 
 # Define the file paths - adjusting for different running contexts
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -88,11 +129,15 @@ try:
         response = requests.get("http://localhost:11434/api/version", timeout=2)
         if response.status_code == 200:
             ollama_available = True
-            print("Ollama service detected and running")
+            print(f"Ollama service detected and running: {response.json()}")
         else:
-            print("Ollama service responded but returned an error")
+            print(f"Ollama service responded but returned an error: {response.status_code}, {response.text}")
+    except requests.exceptions.ConnectionError as e:
+        print(f"Ollama service connection error: {e}")
+    except requests.exceptions.Timeout as e:
+        print(f"Ollama service timeout: {e}")
     except Exception as e:
-        print(f"Ollama service not detected: {e}")
+        print(f"Ollama service detection error: {type(e).__name__}: {e}")
     
     # Initialize components with warning about Ollama status
     if not ollama_available:
@@ -103,10 +148,10 @@ try:
     
     # Initialize packaging agent (will fall back to rule-based if Ollama is not available)
     PACKAGING_AGENT = PackagingAgent(PRODUCT_PACKAGE_DATASET)
-    print("Packaging agent initialized (may be in fallback mode if Ollama is not available)")
+    print(f"Packaging agent initialized (Mode: {'AI-powered' if ollama_available else 'fallback rule-based'})")
     
 except Exception as e:
-    print(f"Error initializing Agentic AI components: {e}")
+    print(f"Error initializing Agentic AI components: {type(e).__name__}: {e}")
     PACKAGING_AGENT = None
 
 # Helper function to load data
@@ -120,13 +165,27 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    app.logger.info("Login route accessed")
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         
+        app.logger.debug(f"Login attempt for email: {email}")
+        
+        if not email or not password:
+            app.logger.warning("Login failed: Missing email or password")
+            flash('Please enter both email and password')
+            return render_template('login.html')
+            
         if email in users and check_password_hash(users[email]['password'], password):
+            app.logger.info(f"Login successful for user: {email}, role: {users[email]['role']}")
             user = User(users[email]['id'], email, users[email]['role'])
             login_user(user)
+            
+            # Store user info in session as well for backward compatibility
+            session['user_id'] = users[email]['id']
+            session['email'] = email
+            session['role'] = users[email]['role']
             
             # Redirect based on user role
             if users[email]['role'] == 'customer':
@@ -138,6 +197,7 @@ def login():
             elif users[email]['role'] == 'packaging':
                 return redirect(url_for('packaging_dashboard'))
         else:
+            app.logger.warning(f"Login failed for user: {email} - Invalid credentials")
             flash('Invalid email or password')
     
     return render_template('login.html')
@@ -169,7 +229,12 @@ def signup():
 @app.route('/logout')
 @login_required
 def logout():
+    app.logger.info(f"Logout request for user: {current_user.email if hasattr(current_user, 'email') else 'Unknown'}")
+    # Clear the session
+    session.clear()
+    # Log out the user from Flask-Login
     logout_user()
+    flash('You have been logged out successfully.', 'info')
     return redirect(url_for('index'))
 
 # Customer Section Routes
@@ -439,8 +504,20 @@ def driver_dashboard():
             icon=folium.Icon(color=color, icon=icon, prefix='fa'),
         ).add_to(m)
     
-    # Save map to html file
-    map_html = m._repr_html_()
+    # Save map to html
+    try:
+        map_html = m._repr_html_()
+    except Exception as e:
+        app.logger.error(f"Error rendering map to HTML: {type(e).__name__}: {e}")
+        # Create a simple fallback HTML for the map
+        map_html = """
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Map rendering error:</strong> Unable to display the delivery heatmap.
+            <hr>
+            <p>Please try refreshing the page or contact technical support if the issue persists.</p>
+        </div>
+        """
     
     # Get optimized routes based on current conditions
     optimized_routes = optimize_routes(route_df)
@@ -497,87 +574,292 @@ def driver_report():
 @app.route('/company/dashboard')
 @login_required
 def company_dashboard():
+    """Company dashboard with visualizations for delivery performance."""
+    # Check if user is logged in and has company role
     if current_user.role != 'company':
+        app.logger.warning(f"Access denied to company dashboard for user with role: {current_user.role}")
         flash('Access denied')
         return redirect(url_for('index'))
     
-    # Create a folium map for heatmap
-    m = folium.Map(location=[25.2048, 55.2708], zoom_start=11)
+    try:
+        # Default values for variables used in the template
+        issue_rate = 7.5
+        on_time_rate = 92.5
+        total_deliveries = 1438
+        avg_rating = 4.2
+        
+        # Create a heatmap with proper Leaflet map and coordinated-based hotspots
+        heatmap_html = """
+        <div class="uae-heatmap-container" style="height: 450px; width: 100%; position: relative; border-radius: 4px; overflow: hidden; border: 1px solid #ddd;">
+            <!-- Leaflet map container -->
+            <div id="leaflet-map" style="width: 100%; height: 100%;"></div>
+            
+            <!-- Include Leaflet CSS and JS -->
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+            <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+            
+            <script>
+            // Initialize the map once the document is loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                // Create the map focused on UAE
+                var map = L.map('leaflet-map').setView([24.7, 54.5], 7);
+                
+                // Add OpenStreetMap tiles
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19
+                }).addTo(map);
+                
+                // Define hotspot locations with actual geographic coordinates
+                var hotspots = [
+                    {name: 'Dubai', lat: 25.2048, lng: 55.2708, color: '#ff0000', scale: 3, opacity: 0.6},
+                    {name: 'Abu Dhabi', lat: 24.4539, lng: 54.3773, color: '#ff0000', scale: 2.5, opacity: 0.6},
+                    {name: 'Sharjah', lat: 25.3463, lng: 55.4209, color: '#ffaa00', scale: 2, opacity: 0.6},
+                    {name: 'Ajman', lat: 25.4052, lng: 55.5136, color: '#ffaa00', scale: 1.8, opacity: 0.6},
+                    {name: 'RAK', lat: 25.7895, lng: 55.9432, color: '#00cc00', scale: 1.5, opacity: 0.6},
+                    {name: 'Fujairah', lat: 25.1288, lng: 56.3265, color: '#00cc00', scale: 1.5, opacity: 0.6},
+                    {name: 'UAQ', lat: 25.5647, lng: 55.5534, color: '#00cc00', scale: 1.2, opacity: 0.6},
+                    {name: 'Desert Area 1', lat: 24.9500, lng: 55.6000, color: '#00cc00', scale: 1.3, opacity: 0.4},
+                    {name: 'Desert Area 2', lat: 24.7000, lng: 54.9000, color: '#00cc00', scale: 1, opacity: 0.4}
+                ];
+                
+                // Icon for distribution centers
+                var centerIcon = L.divIcon({
+                    className: 'distribution-center-icon',
+                    html: '<div style="background-color: white; width: 10px; height: 10px; border: 2px solid black; border-radius: 50%;"></div>',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
+                });
+                
+                // Add hotspots to the map
+                hotspots.forEach(function(spot) {
+                    // Create a circle for the hotspot with appropriate radius based on scale
+                    var radius = spot.scale * 5000; // Scale to appropriate size in meters
+                    var circle = L.circle([spot.lat, spot.lng], {
+                        color: 'transparent',
+                        fillColor: spot.color,
+                        fillOpacity: spot.opacity,
+                        radius: radius
+                    }).addTo(map);
+                    
+                    // Add a label if it's a main city
+                    if (spot.name !== 'Desert Area 1' && spot.name !== 'Desert Area 2') {
+                        // Add distribution center marker
+                        var marker = L.marker([spot.lat, spot.lng], {
+                            icon: centerIcon
+                        }).addTo(map);
+                        marker.bindTooltip(spot.name + ' Distribution Center');
+                        
+                        // Add a label
+                        var label = L.marker([spot.lat, spot.lng], {
+                            icon: L.divIcon({
+                                className: 'city-label',
+                                html: '<div style="background-color: rgba(255,255,255,0.7); padding: 2px 5px; border-radius: 3px; font-size: 12px; font-weight: bold; white-space: nowrap;">' + spot.name + '</div>',
+                                iconSize: [100, 20],
+                                iconAnchor: [50, -15]
+                            })
+                        }).addTo(map);
+                    }
+                });
+                
+                // Add a legend
+                var legend = L.control({position: 'topleft'});
+                
+                legend.onAdd = function(map) {
+                    var div = L.DomUtil.create('div', 'legend');
+                    div.innerHTML = `
+                        <div style="background-color: white; padding: 10px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <h5 style="margin: 0 0 10px 0; font-size: 16px;">Delivery Density</h5>
+                            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                <span style="display: inline-block; width: 20px; height: 15px; background-color: rgba(255,0,0,0.6); margin-right: 5px;"></span>
+                                <span style="font-size: 12px;">High (Dubai, Abu Dhabi)</span>
+                            </div>
+                            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                <span style="display: inline-block; width: 20px; height: 15px; background-color: rgba(255,170,0,0.6); margin-right: 5px;"></span>
+                                <span style="font-size: 12px;">Medium (Sharjah, Ajman)</span>
+                            </div>
+                            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                <span style="display: inline-block; width: 20px; height: 15px; background-color: rgba(0,204,0,0.6); margin-right: 5px;"></span>
+                                <span style="font-size: 12px;">Low (RAK, Fujairah, UAQ)</span>
+                            </div>
+                        </div>
+                    `;
+                    return div;
+                };
+                
+                legend.addTo(map);
+            });
+            </script>
+        </div>
+        """
+        
+        # Try to load data if available
+        try:
+            # Load the deliveries CSV file if it exists
+            if os.path.exists(SHIPPING_COMPANY_SECTION):
+                deliveries_df = pd.read_csv(SHIPPING_COMPANY_SECTION)
+                app.logger.info(f"Loaded delivery data: {len(deliveries_df)} records")
+                
+                # Set up some basic statistics
+                if not deliveries_df.empty:
+                    if 'Overall_Rating' in deliveries_df.columns:
+                        avg_rating = float(deliveries_df['Overall_Rating'].mean())
+                    
+                    # Calculate issue rate if applicable column exists
+                    issue_column = next((col for col in ['Cause_of_Issue', 'Issue_Reported'] 
+                                      if col in deliveries_df.columns), None)
+                    if issue_column:
+                        has_issue = ~deliveries_df[issue_column].isna()
+                        issue_rate = float(has_issue.mean() * 100)
+                        on_time_rate = 100 - float((deliveries_df[issue_column] == 'Late_Delivery').mean() * 100)
+                    
+                    total_deliveries = len(deliveries_df)
+            else:
+                app.logger.warning(f"Delivery data file not found: {SHIPPING_COMPANY_SECTION}")
+        except Exception as e:
+            app.logger.error(f"Error loading delivery data: {type(e).__name__}: {e}")
+        
+        # Round values for display
+        avg_rating = round(avg_rating, 1)
+        issue_rate = round(issue_rate, 1)
+        on_time_rate = round(on_time_rate, 1)
+        
+        return render_template(
+            'company_dashboard.html',
+            heatmap_html=heatmap_html,
+            avg_rating=avg_rating,
+            issue_rate=issue_rate,
+            on_time_rate=on_time_rate,
+            total_deliveries=total_deliveries
+        )
+    except Exception as e:
+        app.logger.error(f"Error in company dashboard: {type(e).__name__}: {e}")
+        flash(f"Error loading dashboard data: {str(e)}", "danger")
+        return render_template('error.html', 
+                              error_title="Dashboard Error",
+                              error_message="An error occurred while loading the dashboard data.")
+
+# Create endpoints to serve dynamic plots
+@app.route('/plot/packaging_materials')
+@login_required
+def plot_packaging_materials():
+    if current_user.role not in ['company', 'packaging']:
+        return Response("Unauthorized", status=401)
     
-    # Add random heatmap points in Dubai
-    heatmap_points = [
-        [25.2743, 55.3087], # Dubai Creek
-        [25.2048, 55.2708], # Dubai Downtown
-        [25.1972, 55.2744], # Business Bay
-        [25.1124, 55.1390], # Dubai Marina
-        [25.0478, 55.1816], # Palm Jumeirah
-        [25.0188, 55.0371], # Dubai Investments Park
-        [25.0677, 55.1403], # Dubai Sports City
-        [25.0621, 55.2247], # Al Quoz
-        [25.2361, 55.3894], # Dubai Airport
-        [25.2285, 55.3273]  # Deira
-    ]
+    # Load packaging data
+    try:
+        df = pd.read_csv(PRODUCT_PACKAGE_DATASET)
+        
+        # Check if data is empty or has insufficient data
+        if df.empty or 'Packaging_Material' not in df.columns:
+            app.logger.warning("Packaging dataset empty or missing required columns. Using sample data.")
+            raise ValueError("Insufficient data")
+            
+        # Create a figure with Matplotlib and Seaborn
+        plt.figure(figsize=(10, 6))
+        counts = df['Packaging_Material'].value_counts()
+        
+        # Ensure we have data to display
+        if len(counts) == 0:
+            app.logger.warning("No packaging materials found in dataset. Using sample data.")
+            raise ValueError("No packaging materials data")
+            
+        ax = sns.barplot(x=counts.index, y=counts.values, palette='viridis')
+        plt.xticks(rotation=45, ha='right')
+        plt.title('Distribution of Packaging Materials')
+        plt.xlabel('Packaging Material')
+        plt.ylabel('Count')
+        plt.tight_layout()
+    except Exception as e:
+        app.logger.warning(f"Error creating packaging materials plot: {str(e)}. Using sample data.")
+        # Create sample data
+        plt.figure(figsize=(10, 6))
+        
+        # Sample packaging materials and counts
+        materials = ['Corrugated Box', 'Bubble Wrap + Box', 'Plastic Wrap + Box', 
+                    'Foam Box + Ice Pack', 'Anti-Static + Box', 'Thermocol + Box']
+        counts = [35, 25, 15, 10, 8, 7]
+        
+        ax = sns.barplot(x=materials, y=counts, palette='viridis')
+        plt.xticks(rotation=45, ha='right')
+        plt.title('Distribution of Packaging Materials (Sample Data)')
+        plt.xlabel('Packaging Material')
+        plt.ylabel('Count')
+        plt.tight_layout()
     
-    # Add heatmap layer
-    plugins.HeatMap(
-        heatmap_points,
-        radius=15
-    ).add_to(m)
+    # Convert plot to PNG image
+    canvas = FigureCanvas(plt.gcf())
+    img = io.BytesIO()
+    canvas.print_png(img)
+    img.seek(0)
+    plt.close()
     
-    # Save map to html file
-    heatmap_html = m._repr_html_()
+    return Response(img.getvalue(), mimetype='image/png')
+
+@app.route('/plot/packaging_by_product_type')
+@login_required
+def plot_packaging_by_product_type():
+    if current_user.role not in ['company', 'packaging']:
+        return Response("Unauthorized", status=401)
     
-    # Create performance charts with Plotly
-    # Driver Performance
-    shipping_df = pd.read_csv(SHIPPING_COMPANY_SECTION)
-    customer_df = pd.read_csv(CUSTOMER_SECTION_TABLE)
+    # Load packaging data
+    try:
+        df = pd.read_csv(PRODUCT_PACKAGE_DATASET)
+        
+        # Check if data is empty or has insufficient data
+        if df.empty or 'Product_Type' not in df.columns or 'Packaging_Material' not in df.columns:
+            app.logger.warning("Packaging dataset empty or missing required columns. Using sample data.")
+            raise ValueError("Insufficient data")
+        
+        # Create a cross-tabulation
+        product_packaging = pd.crosstab(df['Product_Type'], df['Packaging_Material'])
+        
+        # Ensure we have data to display
+        if product_packaging.empty:
+            app.logger.warning("No product-packaging relationship data. Using sample data.")
+            raise ValueError("No product-packaging data")
+            
+        # Create a figure with Matplotlib and Seaborn
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(product_packaging, annot=True, cmap='YlGnBu', fmt='d', linewidths=.5)
+        plt.title('Packaging Materials by Product Type')
+        plt.xlabel('Packaging Material')
+        plt.ylabel('Product Type')
+        plt.tight_layout()
+    except Exception as e:
+        app.logger.warning(f"Error creating packaging by product type plot: {str(e)}. Using sample data.")
+        # Create sample data
+        plt.figure(figsize=(12, 8))
+        
+        # Sample product types and packaging materials
+        product_types = ['Electronics', 'Glassware', 'Furniture', 'Pharmaceuticals', 'Fresh Produce']
+        packaging_materials = ['Corrugated Box', 'Bubble Wrap + Box', 'Plastic Wrap + Box', 'Foam Box + Ice Pack']
+        
+        # Create a DataFrame with sample relationships
+        data = [
+            [20, 15, 5, 2],  # Electronics
+            [5, 25, 8, 3],   # Glassware
+            [18, 7, 12, 0],  # Furniture
+            [10, 5, 3, 15],  # Pharmaceuticals
+            [8, 2, 15, 18]   # Fresh Produce
+        ]
+        
+        sample_df = pd.DataFrame(data, index=product_types, columns=packaging_materials)
+        
+        sns.heatmap(sample_df, annot=True, cmap='YlGnBu', fmt='d', linewidths=.5)
+        plt.title('Packaging Materials by Product Type (Sample Data)')
+        plt.xlabel('Packaging Material')
+        plt.ylabel('Product Type')
+        plt.tight_layout()
     
-    # Join data
-    merged_df = pd.merge(
-        shipping_df,
-        customer_df,
-        on='Delivery_ID',
-        how='inner',
-        suffixes=('_shipping', '_customer')
-    )
+    # Convert plot to PNG image
+    canvas = FigureCanvas(plt.gcf())
+    img = io.BytesIO()
+    canvas.print_png(img)
+    img.seek(0)
+    plt.close()
     
-    # Calculate average rating by driver
-    driver_ratings = merged_df.groupby('Driver_ID')['Overall_Rating'].mean().reset_index()
-    driver_ratings = driver_ratings.sort_values('Overall_Rating', ascending=False)
-    
-    # Create bar chart
-    driver_fig = px.bar(
-        driver_ratings, 
-        x='Driver_ID', 
-        y='Overall_Rating',
-        title='Driver Performance by Customer Rating',
-        labels={'Driver_ID': 'Driver ID', 'Overall_Rating': 'Average Rating'},
-        color='Overall_Rating',
-        color_continuous_scale='Viridis'
-    )
-    
-    # Customer Satisfaction
-    issue_counts = customer_df['Issue_Reported'].value_counts().reset_index()
-    issue_counts.columns = ['Issue', 'Count']
-    
-    issue_fig = px.pie(
-        issue_counts,
-        values='Count',
-        names='Issue',
-        title='Distribution of Reported Issues',
-        hole=0.3
-    )
-    
-    # Convert figures to JSON for passing to template
-    driver_chart = json.loads(driver_fig.to_json())
-    issue_chart = json.loads(issue_fig.to_json())
-    
-    return render_template(
-        'company_dashboard.html',
-        heatmap_html=heatmap_html,
-        driver_chart=driver_chart,
-        issue_chart=issue_chart
-    )
+    return Response(img.getvalue(), mimetype='image/png')
 
 # Packaging Section Routes
 @app.route('/packaging/dashboard')
@@ -600,25 +882,146 @@ def packaging_predict():
     explanation = None
     confidence = None
     method = None
+    error = None
     
     if request.method == 'POST':
-        product_type = request.form.get('product_type')
-        weight_kg = float(request.form.get('weight_kg'))
-        fragile = request.form.get('fragile')
-        temp_condition = request.form.get('temp_condition')
-        humidity_level = request.form.get('humidity_level')
+        try:
+            # Extract and validate form data
+            product_type = request.form.get('product_type')
+            if not product_type:
+                raise ValueError("Product type is required")
+                
+            weight_kg_str = request.form.get('weight_kg')
+            if not weight_kg_str:
+                raise ValueError("Weight is required")
+                
+            try:
+                weight_kg = float(weight_kg_str)
+                if weight_kg <= 0 or weight_kg > 100:
+                    raise ValueError("Weight must be between 0 and 100 kg")
+            except ValueError:
+                raise ValueError("Weight must be a valid number")
+                
+            fragile = request.form.get('fragile')
+            if not fragile:
+                raise ValueError("Fragility selection is required")
+                
+            temp_condition = request.form.get('temp_condition')
+            if not temp_condition:
+                raise ValueError("Temperature condition is required")
+                
+            humidity_level = request.form.get('humidity_level')
+            if not humidity_level:
+                raise ValueError("Humidity level is required")
+            
+            # Use Agentic AI for prediction if available
+            if PACKAGING_AGENT:
+                app.logger.info(f"Using AI agent for packaging prediction: {product_type}, {weight_kg}kg")
+                result = PACKAGING_AGENT.predict_packaging(
+                    product_type, weight_kg, fragile, temp_condition, humidity_level
+                )
+                prediction = result['prediction']
+                explanation = result['explanation']
+                confidence = result['confidence']
+                method = result['method']
+                
+                if method == "agentic_ai":
+                    flash('AI-powered recommendation generated!', 'success')
+                else:
+                    flash('Prediction generated using rule-based fallback method.', 'info')
+            else:
+                app.logger.warning("No PackagingAgent available. Using direct rule-based method.")
+                # Fallback to original method if agent is not available
+                df = pd.read_csv(PRODUCT_PACKAGE_DATASET)
+                
+                filtered_df = df[(df['Product_Type'] == product_type) & 
+                                (df['Fragile'] == fragile) & 
+                                (df['Temp_Condition'] == temp_condition) & 
+                                (df['Humidity_Level'] == humidity_level)]
+                
+                if not filtered_df.empty:
+                    prediction = filtered_df['Packaging_Material'].mode()[0]
+                else:
+                    filtered_by_type = df[df['Product_Type'] == product_type]
+                    if not filtered_by_type.empty:
+                        filtered_by_type['weight_diff'] = abs(filtered_by_type['Weight_kg'] - weight_kg)
+                        closest_match = filtered_by_type.loc[filtered_by_type['weight_diff'].idxmin()]
+                        prediction = closest_match['Packaging_Material']
+                    else:
+                        prediction = "No suitable packaging found"
+                
+                # Default values for fallback method
+                explanation = f"Based on similar products in our database, this packaging is optimal for {product_type}."
+                confidence = "medium"
+                method = "rule_based"
+                flash('Prediction generated using dataset analysis.', 'info')
+                
+        except ValueError as e:
+            error = str(e)
+            flash(f'Error: {error}', 'danger')
+            app.logger.error(f"Validation error in packaging prediction: {error}")
+        except Exception as e:
+            error = f"An unexpected error occurred: {str(e)}"
+            flash(error, 'danger')
+            app.logger.error(f"Error in packaging prediction: {type(e).__name__}: {e}")
+        
+    return render_template('packaging_predict.html', 
+                          prediction=prediction, 
+                          explanation=explanation,
+                          confidence=confidence,
+                          method=method,
+                          error=error)
+
+# API Endpoints for ML predictions
+@app.route('/api/predict_packaging', methods=['POST'])
+def predict_packaging():
+    try:
+        data = request.json
+        
+        # Validate request data
+        if not data:
+            return jsonify({'error': 'No request data provided'}), 400
+        
+        # Extract and validate features
+        product_type = data.get('product_type')
+        if not product_type:
+            return jsonify({'error': 'Product type is required'}), 400
+            
+        weight_kg_raw = data.get('weight_kg')
+        if weight_kg_raw is None:
+            return jsonify({'error': 'Weight is required'}), 400
+            
+        try:
+            weight_kg = float(weight_kg_raw)
+            if weight_kg <= 0 or weight_kg > 100:
+                return jsonify({'error': 'Weight must be between 0 and 100 kg'}), 400
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Weight must be a valid number'}), 400
+            
+        fragile = data.get('fragile')
+        if not fragile:
+            return jsonify({'error': 'Fragility selection is required'}), 400
+            
+        temp_condition = data.get('temp_condition')
+        if not temp_condition:
+            return jsonify({'error': 'Temperature condition is required'}), 400
+            
+        humidity_level = data.get('humidity_level')
+        if not humidity_level:
+            return jsonify({'error': 'Humidity level is required'}), 400
+        
+        app.logger.info(f"Packaging prediction API request: {product_type}, {weight_kg}kg, {fragile}, {temp_condition}, {humidity_level}")
         
         # Use Agentic AI for prediction if available
         if PACKAGING_AGENT:
             result = PACKAGING_AGENT.predict_packaging(
                 product_type, weight_kg, fragile, temp_condition, humidity_level
             )
-            prediction = result['prediction']
-            explanation = result['explanation']
-            confidence = result['confidence']
-            method = result['method']
+            app.logger.info(f"AI prediction result: {result['prediction']} (method: {result['method']})")
+            return jsonify(result)
         else:
-            # Fallback to original method if agent is not available
+            app.logger.warning("No PackagingAgent available for API request. Using direct rule-based method.")
+            # Fallback to original method
             df = pd.read_csv(PRODUCT_PACKAGE_DATASET)
             
             filtered_df = df[(df['Product_Type'] == product_type) & 
@@ -637,61 +1040,25 @@ def packaging_predict():
                 else:
                     prediction = "No suitable packaging found"
             
-            # Default values for fallback method
-            explanation = f"Based on similar products in our database, this packaging is optimal for {product_type}."
-            confidence = "medium"
-            method = "rule_based"
-        
-    return render_template('packaging_predict.html', 
-                          prediction=prediction, 
-                          explanation=explanation,
-                          confidence=confidence,
-                          method=method)
-
-# API Endpoints for ML predictions
-@app.route('/api/predict_packaging', methods=['POST'])
-def predict_packaging():
-    data = request.json
+            result = {
+                'prediction': prediction,
+                'explanation': f"Based on similar products in our database for {product_type}.",
+                'confidence': 'medium',
+                'method': 'rule_based'
+            }
+            app.logger.info(f"Rule-based prediction result: {result['prediction']}")
+            return jsonify(result)
     
-    # Extract features
-    product_type = data.get('product_type')
-    weight_kg = float(data.get('weight_kg'))
-    fragile = data.get('fragile')
-    temp_condition = data.get('temp_condition')
-    humidity_level = data.get('humidity_level')
-    
-    # Use Agentic AI for prediction if available
-    if PACKAGING_AGENT:
-        result = PACKAGING_AGENT.predict_packaging(
-            product_type, weight_kg, fragile, temp_condition, humidity_level
-        )
-        return jsonify(result)
-    else:
-        # Fallback to original method
-        df = pd.read_csv(PRODUCT_PACKAGE_DATASET)
-        
-        filtered_df = df[(df['Product_Type'] == product_type) & 
-                        (df['Fragile'] == fragile) & 
-                        (df['Temp_Condition'] == temp_condition) & 
-                        (df['Humidity_Level'] == humidity_level)]
-        
-        if not filtered_df.empty:
-            prediction = filtered_df['Packaging_Material'].mode()[0]
-        else:
-            filtered_by_type = df[df['Product_Type'] == product_type]
-            if not filtered_by_type.empty:
-                filtered_by_type['weight_diff'] = abs(filtered_by_type['Weight_kg'] - weight_kg)
-                closest_match = filtered_by_type.loc[filtered_by_type['weight_diff'].idxmin()]
-                prediction = closest_match['Packaging_Material']
-            else:
-                prediction = "No suitable packaging found"
-        
+    except Exception as e:
+        error_msg = f"Error in packaging prediction API: {type(e).__name__}: {str(e)}"
+        app.logger.error(error_msg)
         return jsonify({
-            'prediction': prediction,
-            'explanation': f"Based on similar products in our database.",
-            'confidence': 'medium',
-            'method': 'rule_based'
-        })
+            'error': error_msg,
+            'prediction': 'Standard Box',
+            'explanation': 'Default recommendation due to processing error.',
+            'confidence': 'low',
+            'method': 'error_fallback'
+        }), 500
 
 @app.route('/api/predict_delivery_issues', methods=['POST'])
 def predict_delivery_issues():
@@ -817,6 +1184,168 @@ def get_route_issues(shipping_df):
         issues.append(dubai_specific_issues.pop(0))
     
     return issues
+
+# Additional endpoint for packaging visualization
+@app.route('/api/packaging/visualization', methods=['GET'])
+def packaging_visualization():
+    try:
+        # Load the dataset
+        try:
+            df = pd.read_csv(PRODUCT_PACKAGE_DATASET)
+            if df.empty:
+                raise ValueError("Dataset is empty")
+        except (FileNotFoundError, pd.errors.EmptyDataError, ValueError) as e:
+            app.logger.warning(f"Could not load packaging dataset: {str(e)}. Using sample data.")
+            # Create sample data
+            return create_sample_packaging_data()
+        
+        # Weight ranges
+        weight_ranges = [
+            {'min': 0, 'max': 1, 'label': '0-1 kg'},
+            {'min': 1, 'max': 2, 'label': '1-2 kg'},
+            {'min': 2, 'max': 5, 'label': '2-5 kg'},
+            {'min': 5, 'max': 10, 'label': '5-10 kg'},
+            {'min': 10, 'max': 100, 'label': '10+ kg'},
+        ]
+        
+        # Calculate optimal packaging by weight range
+        weight_packaging = []
+        for weight_range in weight_ranges:
+            filtered_df = df[(df['Weight_kg'] >= weight_range['min']) & 
+                            (df['Weight_kg'] < weight_range['max'])]
+            if not filtered_df.empty:
+                top_packaging = filtered_df['Packaging_Material'].value_counts().head(3)
+                weight_packaging.append({
+                    'range': weight_range['label'],
+                    'packaging': [{'name': name, 'count': int(count)} 
+                                for name, count in top_packaging.items()]
+                })
+        
+        # If no data found in any weight range, use sample data
+        if not weight_packaging:
+            app.logger.warning("No packaging data found in any weight range. Using sample data.")
+            return create_sample_packaging_data()
+            
+        # Calculate packaging distribution by product type
+        product_packaging = {}
+        for product_type in df['Product_Type'].unique():
+            filtered_df = df[df['Product_Type'] == product_type]
+            if not filtered_df.empty:
+                distribution = {k: int(v) for k, v in filtered_df['Packaging_Material'].value_counts().to_dict().items()}
+                product_packaging[product_type] = distribution
+        
+        # Fragility impact on packaging
+        fragile_df = df[df['Fragile'] == 'Yes']
+        non_fragile_df = df[df['Fragile'] == 'No']
+        
+        fragile_packaging = {k: int(v) for k, v in fragile_df['Packaging_Material'].value_counts().head(5).to_dict().items()}
+        non_fragile_packaging = {k: int(v) for k, v in non_fragile_df['Packaging_Material'].value_counts().head(5).to_dict().items()}
+        
+        result = {
+            'weight_packaging': weight_packaging,
+            'product_packaging': product_packaging,
+            'fragility_impact': {
+                'fragile': fragile_packaging,
+                'non_fragile': non_fragile_packaging
+            }
+        }
+        
+        # Ensure all counts are integers, not NumPy types
+        result_json = json.dumps(result, cls=NumpyEncoder)
+        return jsonify(json.loads(result_json))
+    
+    except Exception as e:
+        app.logger.error(f"Error in packaging visualization API: {type(e).__name__}: {e}")
+        return create_sample_packaging_data(is_error=True, error_msg=str(e))
+
+def create_sample_packaging_data(is_error=False, error_msg=None):
+    """Create sample packaging visualization data when real data is not available"""
+    app.logger.info("Creating sample packaging visualization data")
+    
+    # Sample packaging materials
+    packaging_materials = [
+        "Corrugated Box", "Bubble Wrap + Box", "Plastic Wrap + Box", 
+        "Foam Box + Ice Pack", "Anti-Static + Box", "Thermocol + Box", 
+        "Wooden Crate", "Insulated Box"
+    ]
+    
+    # Sample product types
+    product_types = ["Electronics", "Glassware", "Furniture", "Pharmaceuticals", "Fresh Produce"]
+    
+    # Create sample weight packaging data
+    weight_ranges = ['0-1 kg', '1-2 kg', '2-5 kg', '5-10 kg', '10+ kg']
+    weight_packaging = []
+    
+    for weight_range in weight_ranges:
+        # Select 2-3 random packaging materials for this weight range
+        num_packages = random.randint(2, 3)
+        selected_packages = random.sample(packaging_materials, num_packages)
+        
+        # Assign random counts (higher for the first selected package)
+        counts = [random.randint(15, 30)]
+        for _ in range(num_packages - 1):
+            counts.append(random.randint(5, 15))
+            
+        packaging = [{'name': pkg, 'count': count} for pkg, count in zip(selected_packages, counts)]
+        
+        weight_packaging.append({
+            'range': weight_range,
+            'packaging': packaging
+        })
+    
+    # Create sample product packaging distribution
+    product_packaging = {}
+    for product_type in product_types:
+        # Select 3-4 random packaging materials for this product type
+        num_packages = random.randint(3, 4)
+        selected_packages = random.sample(packaging_materials, num_packages)
+        
+        # Assign random counts
+        distribution = {}
+        for pkg in selected_packages:
+            distribution[pkg] = random.randint(5, 25)
+            
+        product_packaging[product_type] = distribution
+    
+    # Create sample fragility impact
+    fragile_packaging = {pkg: random.randint(5, 20) for pkg in random.sample(packaging_materials, 4)}
+    non_fragile_packaging = {pkg: random.randint(5, 20) for pkg in random.sample(packaging_materials, 4)}
+    
+    result = {
+        'weight_packaging': weight_packaging,
+        'product_packaging': product_packaging,
+        'fragility_impact': {
+            'fragile': fragile_packaging,
+            'non_fragile': non_fragile_packaging
+        }
+    }
+    
+    # Add error info if needed
+    if is_error:
+        result['is_sample_data'] = True
+        if error_msg:
+            result['error'] = f"Error processing packaging visualization data: {error_msg}"
+    
+    return jsonify(result)
+
+# CSRF error handler
+@app.errorhandler(400)
+def handle_csrf_error(e):
+    app.logger.warning(f"CSRF error occurred: {str(e)}")
+    return render_template('error.html', 
+                          error_title="Security Error (400)",
+                          error_message="CSRF token validation failed. Please try again."), 400
+
+# Helper class for JSON serialization of numpy types
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 if __name__ == '__main__':
     app.run(debug=True) 

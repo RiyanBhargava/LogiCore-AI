@@ -172,8 +172,12 @@ class PackagingAgent:
         Returns:
             dict: Prediction result with packaging recommendation and explanation
         """
+        # Log the prediction request
+        logger.info(f"Predicting packaging for: Product={product_type}, Weight={weight_kg}kg, Fragile={fragile}, Temp={temp_condition}, Humidity={humidity_level}")
+        
         # If AI components are not available, fall back to rule-based approach
         if not self.qa_chain or not self.vectorstore or not self.llm:
+            logger.warning("AI components unavailable. Using fallback prediction method.")
             return self._fallback_prediction(product_type, weight_kg, fragile, temp_condition, humidity_level)
         
         try:
@@ -187,13 +191,21 @@ class PackagingAgent:
             }
             
             # Get similar products from vectorstore
-            similar_docs = self.vectorstore.similarity_search(
-                f"Product Type: {product_type}, Weight: {weight_kg}, Fragile: {fragile}, "
-                f"Temperature: {temp_condition}, Humidity: {humidity_level}"
-            )
+            logger.info("Searching for similar products in vector database...")
+            search_query = f"Product Type: {product_type}, Weight: {weight_kg}, Fragile: {fragile}, Temperature: {temp_condition}, Humidity: {humidity_level}"
+            similar_docs = self.vectorstore.similarity_search(search_query)
+            
+            if not similar_docs:
+                logger.warning("No similar products found in vector database.")
+                return self._fallback_prediction(product_type, weight_kg, fragile, temp_condition, humidity_level)
             
             # Generate response using RAG
+            logger.info("Generating recommendation using RAG...")
             response = self.qa_chain(query_params)
+            
+            if not response or not response.get('result'):
+                logger.warning("RAG system returned empty response.")
+                return self._fallback_prediction(product_type, weight_kg, fragile, temp_condition, humidity_level)
             
             # Parse response for packaging material and explanation
             prediction_parts = response['result'].split('\n', 1)
@@ -220,19 +232,26 @@ class PackagingAgent:
                         break
                 else:
                     # If no known packaging is found in the response
+                    logger.warning(f"No known packaging found in response: {prediction_text}")
                     prediction = "Custom Packaging"
                     explanation = prediction_text
             
+            # Validate the prediction
+            if not prediction or prediction.strip() == "":
+                logger.warning("Empty prediction generated.")
+                return self._fallback_prediction(product_type, weight_kg, fragile, temp_condition, humidity_level)
+            
             # Return prediction
+            logger.info(f"AI prediction successful: {prediction}")
             return {
                 "prediction": prediction,
                 "explanation": explanation,
-                "confidence": "high" if similar_docs else "medium",
+                "confidence": "high" if len(similar_docs) > 2 else "medium",
                 "method": "agentic_ai"
             }
             
         except Exception as e:
-            logger.error(f"Error in predict_packaging: {e}")
+            logger.error(f"Error in predict_packaging: {type(e).__name__}: {e}")
             # Fall back to rule-based approach on error
             return self._fallback_prediction(product_type, weight_kg, fragile, temp_condition, humidity_level)
     

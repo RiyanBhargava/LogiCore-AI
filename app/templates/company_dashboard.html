@@ -9,6 +9,8 @@
         margin-bottom: 20px;
     }
 </style>
+<!-- Add Plotly.js CDN -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -149,35 +151,6 @@
     </div>
 </div>
 
-<!-- Charts Row -->
-<div class="row mb-4">
-    <div class="col-xl-8 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Delivery Performance Trends</h5>
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-outline-secondary active" data-chart-period="daily">Daily</button>
-                    <button type="button" class="btn btn-outline-secondary" data-chart-period="weekly">Weekly</button>
-                    <button type="button" class="btn btn-outline-secondary" data-chart-period="monthly">Monthly</button>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="deliveryTrendsChart" style="height: 300px; width: 100%;"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-4 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">Delivery Status Breakdown</h5>
-            </div>
-            <div class="card-body d-flex justify-content-center">
-                <canvas id="deliveryStatusChart" style="height: 300px; width: 100%;"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Map and Insights Row -->
 <div class="row mb-4">
     <div class="col-xl-8 mb-4">
@@ -191,9 +164,8 @@
                 </select>
             </div>
             <div class="card-body">
-                <div id="deliveryHeatmap" style="height: 400px; background-color: #f8f9fa; border-radius: 0.25rem;">
-                    <!-- Replace with actual map implementation -->
-                    <img src="https://via.placeholder.com/800x400/f8f9fa/6c757d?text=Delivery+Heatmap" class="img-fluid rounded" alt="Delivery Heatmap">
+                <div id="deliveryHeatmap" style="height: 400px; border-radius: 0.25rem;">
+                    {{ heatmap_html|safe }}
                 </div>
             </div>
         </div>
@@ -387,6 +359,12 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Set initial KPI values with fallbacks
+        document.getElementById('deliverySuccessRate').textContent = "{{ (100 - issue_rate)|round(1) }}%";
+        document.getElementById('onTimeDelivery').textContent = "{{ on_time_rate|round(1) }}%";
+        document.getElementById('avgDeliveryTime').textContent = "45.2 min";
+        document.getElementById('totalDeliveries').textContent = "{{ total_deliveries }}";
+        
         // Handle custom date range toggle
         document.getElementById('timePeriodSelect').addEventListener('change', function() {
             const customDateRangeDiv = document.getElementById('customDateRange');
@@ -423,7 +401,9 @@
         
         // Export data button
         document.getElementById('exportDataBtn').addEventListener('click', function() {
-            showToast('Exporting dashboard data to Excel...', 'info');
+            showToast('Exporting dashboard data...', 'info');
+            
+            // Simulate export process
             setTimeout(() => {
                 showToast('Dashboard data exported successfully', 'success');
             }, 2000);
@@ -434,140 +414,80 @@
             window.print();
         });
         
-        // Chart period buttons
-        document.querySelectorAll('[data-chart-period]').forEach(button => {
-            button.addEventListener('click', function() {
-                // Remove active class from all buttons
-                document.querySelectorAll('[data-chart-period]').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                // Add active class to clicked button
-                this.classList.add('active');
-                // Update chart
-                updateDeliveryTrendsChart(this.getAttribute('data-chart-period'));
-            });
-        });
-        
         // Heatmap metric select
         document.getElementById('heatmapMetricSelect').addEventListener('change', function() {
-            updateDeliveryHeatmap(this.value);
+            // This would update the heatmap in a real implementation
+            showToast(`Showing ${this.value} data on heatmap`, 'info');
         });
-        
-        // Initialize charts
-        initializeCharts();
         
         // Function to refresh dashboard data
         function refreshDashboardData() {
             const timePeriod = document.getElementById('timePeriodSelect').value;
             const region = document.getElementById('regionSelect').value;
             
-            // This would be replaced with actual API calls to fetch updated data
-            // Simulating data update with random variations
+            // In a real implementation, this would make an AJAX call to get fresh data
+            // For demo purposes, we'll just show a toast
+            showToast(`Refreshing data for ${region} region over ${timePeriod} period`, 'info');
             
-            // Update KPI cards with slight variations
-            const deliverySuccessRate = 92 + (Math.random() * 5);
-            document.getElementById('deliverySuccessRate').textContent = deliverySuccessRate.toFixed(1) + '%';
+            // Update KPI cards with slight variations to simulate data refresh
+            const successBase = parseFloat("{{ (100 - issue_rate)|round(1) }}") || 92.5;
+            const deliverySuccessRate = (successBase + (Math.random() * 3 - 1.5)).toFixed(1);
+            document.getElementById('deliverySuccessRate').textContent = deliverySuccessRate + '%';
             
-            const onTimeDelivery = 87 + (Math.random() * 6);
-            document.getElementById('onTimeDelivery').textContent = onTimeDelivery.toFixed(1) + '%';
+            const onTimeBase = parseFloat("{{ on_time_rate|round(1) }}") || 89.8;
+            const onTimeDelivery = (onTimeBase + (Math.random() * 3 - 1.5)).toFixed(1);
+            document.getElementById('onTimeDelivery').textContent = onTimeDelivery + '%';
             
-            const avgDeliveryTime = 43 + (Math.random() * 7);
-            document.getElementById('avgDeliveryTime').textContent = avgDeliveryTime.toFixed(1) + ' min';
+            const avgDeliveryTime = (43 + (Math.random() * 7)).toFixed(1);
+            document.getElementById('avgDeliveryTime').textContent = avgDeliveryTime + ' min';
             
-            const totalDeliveriesBase = 1400;
-            const totalDeliveries = totalDeliveriesBase + Math.floor(Math.random() * 100);
+            const totalDeliveriesBase = parseInt("{{ total_deliveries }}") || 1438;
+            const totalDeliveries = totalDeliveriesBase + Math.floor(Math.random() * 20 - 10);
             document.getElementById('totalDeliveries').textContent = totalDeliveries.toLocaleString();
-            
-            // Update charts
-            updateDeliveryTrendsChart(document.querySelector('[data-chart-period].active').getAttribute('data-chart-period'));
-            updateDeliveryStatusChart();
-            updateDeliveryHeatmap(document.getElementById('heatmapMetricSelect').value);
         }
         
-        // Function to initialize charts
-        function initializeCharts() {
-            // Delivery Trends Chart (line chart)
-            updateDeliveryTrendsChart('daily');
+        // Toast notification helper
+        function showToast(message, type = 'info') {
+            // Check if toast container exists, create if not
+            let toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
+            }
             
-            // Delivery Status Chart (pie chart)
-            updateDeliveryStatusChart();
-            
-            // Initialize heatmap
-            updateDeliveryHeatmap('volume');
-        }
-        
-        // Function to update delivery trends chart
-        function updateDeliveryTrendsChart(period) {
-            // This would be replaced with actual chart implementation using Chart.js or similar
-            console.log(`Updating delivery trends chart with period: ${period}`);
-            
-            // Simulating chart update with a loading state
-            const chartCanvas = document.getElementById('deliveryTrendsChart');
-            const ctx = chartCanvas.getContext('2d');
-            ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#6c757d';
-            ctx.fillText(`Delivery Trends Chart (${period}) would render here`, chartCanvas.width/2, chartCanvas.height/2);
-        }
-        
-        // Function to update delivery status chart
-        function updateDeliveryStatusChart() {
-            // This would be replaced with actual chart implementation using Chart.js or similar
-            console.log('Updating delivery status chart');
-            
-            // Simulating chart update with a loading state
-            const chartCanvas = document.getElementById('deliveryStatusChart');
-            const ctx = chartCanvas.getContext('2d');
-            ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#6c757d';
-            ctx.fillText('Delivery Status Pie Chart would render here', chartCanvas.width/2, chartCanvas.height/2);
-        }
-        
-        // Function to update delivery heatmap
-        function updateDeliveryHeatmap(metric) {
-            // This would be replaced with actual heatmap implementation
-            console.log(`Updating delivery heatmap with metric: ${metric}`);
-            
-            // Simulating heatmap update by changing the placeholder image
-            document.getElementById('deliveryHeatmap').innerHTML = 
-                `<img src="https://via.placeholder.com/800x400/f8f9fa/6c757d?text=Delivery+Heatmap+(${metric})" class="img-fluid rounded" alt="Delivery Heatmap">`;
-        }
-        
-        // Function to show toast notifications
-        function showToast(message, type) {
             // Create toast element
-            const toastContainer = document.createElement('div');
-            toastContainer.style.position = 'fixed';
-            toastContainer.style.top = '20px';
-            toastContainer.style.right = '20px';
-            toastContainer.style.zIndex = '9999';
-            
+            const toastId = 'toast-' + Date.now();
             const toast = document.createElement('div');
-            toast.className = `toast show bg-${type} text-white`;
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.id = toastId;
             toast.setAttribute('role', 'alert');
             toast.setAttribute('aria-live', 'assertive');
             toast.setAttribute('aria-atomic', 'true');
             
             toast.innerHTML = `
-                <div class="toast-header bg-${type} text-white">
-                    <strong class="me-auto">Notification</strong>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    ${message}
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
             `;
             
             toastContainer.appendChild(toast);
-            document.body.appendChild(toastContainer);
             
-            // Remove after 3 seconds
-            setTimeout(() => {
-                document.body.removeChild(toastContainer);
-            }, 3000);
+            // Initialize and show toast
+            const bsToast = new bootstrap.Toast(toast, {
+                autohide: true,
+                delay: 3000
+            });
+            bsToast.show();
+            
+            // Remove after hiding
+            toast.addEventListener('hidden.bs.toast', function() {
+                toast.remove();
+            });
         }
     });
 </script>

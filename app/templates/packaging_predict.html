@@ -18,7 +18,13 @@
                 <i class="fas fa-box-open me-2"></i> Product Specifications
             </div>
             <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
+                </div>
+                {% endif %}
                 <form id="packaging-form" action="{{ url_for('packaging_predict') }}" method="POST" class="form-container">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-3">
                         <label for="product_type" class="form-label">Product Type</label>
                         <select class="form-select" id="product_type" name="product_type" required>
@@ -135,6 +141,13 @@
                                 <i class="fas fa-print me-2"></i> Print recommendation (Coming soon)
                             </button>
                         </div>
+                    </div>
+                {% elif error %}
+                    <div class="text-center my-5">
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i> Please correct the errors and try again.
+                        </div>
+                        <p class="text-muted">Fix the form inputs to get an AI-powered packaging recommendation.</p>
                     </div>
                 {% else %}
                     <div class="text-center my-5">

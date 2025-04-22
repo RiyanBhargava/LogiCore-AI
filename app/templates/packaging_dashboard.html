@@ -2,6 +2,17 @@
 
 {% block title %}Packaging Dashboard - Logistics Optimization Platform{% endblock %}
 
+{% block head %}
+<!-- Add Plotly.js CDN -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+    .chart-container {
+        height: 400px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col">
@@ -10,9 +21,23 @@
     </div>
 </div>
 
+<!-- Interactive Charts Section -->
+<div class="row mb-4">
+    <div class="col-lg-12 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-chart-bar me-2"></i> Product-Packaging Relationship
+            </div>
+            <div class="card-body">
+                <img src="{{ url_for('plot_packaging_by_product_type') }}" class="img-fluid" alt="Packaging by Product Type">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row mb-4">
     <div class="col-lg-8">
-        <div class="card">
+        <div class="card shadow-sm h-100">
             <div class="card-header bg-primary text-white">
                 <i class="fas fa-box me-2"></i> Packaging Optimization
             </div>
@@ -33,7 +58,7 @@
     </div>
     
     <div class="col-lg-4">
-        <div class="card">
+        <div class="card shadow-sm h-100">
             <div class="card-header bg-success text-white">
                 <i class="fas fa-chart-pie me-2"></i> Packaging Stats
             </div>
@@ -64,6 +89,20 @@
                         <small class="text-muted">Based on product arrival condition</small>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Interactive Charts Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-weight me-2"></i> Weight-Based Packaging Analysis
+            </div>
+            <div class="card-body">
+                <div id="weightAnalysisChart" class="chart-container"></div>
             </div>
         </div>
     </div>
@@ -246,4 +285,179 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch real data from the API endpoint instead of using simulated data
+        fetch('/api/packaging/visualization')
+            .then(response => response.json())
+            .then(data => {
+                // Check if we have the weight packaging data
+                if (!data.weight_packaging || data.weight_packaging.length === 0) {
+                    console.warn('No weight packaging data available, using sample data');
+                    createSampleWeightChart();
+                    return;
+                }
+
+                try {
+                    // Process the weight packaging data
+                    const traces = [];
+                    
+                    // Create a mapping for our weight ranges to numerical values for the x-axis
+                    const weightMapping = {
+                        '0-1 kg': 0.5,
+                        '1-2 kg': 1.5,
+                        '2-5 kg': 3.5,
+                        '5-10 kg': 7.5,
+                        '10+ kg': 15
+                    };
+                    
+                    // Process each packaging material across weight ranges
+                    const packagingTypes = new Set();
+                    const packagingData = {};
+                    
+                    // First pass: gather all unique packaging materials
+                    data.weight_packaging.forEach(range => {
+                        if (range.packaging && range.packaging.length > 0) {
+                            range.packaging.forEach(pkg => {
+                                packagingTypes.add(pkg.name);
+                            });
+                        }
+                    });
+                    
+                    // If no packaging types found, use sample data
+                    if (packagingTypes.size === 0) {
+                        console.warn('No packaging types found in data, using sample data');
+                        createSampleWeightChart();
+                        return;
+                    }
+                    
+                    // Initialize data structure for each packaging type
+                    packagingTypes.forEach(type => {
+                        packagingData[type] = {};
+                        data.weight_packaging.forEach(range => {
+                            packagingData[type][range.range] = 0;
+                        });
+                    });
+                    
+                    // Second pass: populate the data
+                    data.weight_packaging.forEach(range => {
+                        if (range.packaging && range.packaging.length > 0) {
+                            range.packaging.forEach(pkg => {
+                                packagingData[pkg.name][range.range] = pkg.count;
+                            });
+                        }
+                    });
+                    
+                    // Create traces for each packaging type
+                    Object.keys(packagingData).forEach(packagingType => {
+                        const x = [];
+                        const y = [];
+                        
+                        data.weight_packaging.forEach(range => {
+                            x.push(weightMapping[range.range]);
+                            y.push(packagingData[packagingType][range.range]);
+                        });
+                        
+                        traces.push({
+                            x: x,
+                            y: y,
+                            type: 'scatter',
+                            mode: 'lines+markers',
+                            name: packagingType,
+                            marker: { size: 8 }
+                        });
+                    });
+                    
+                    const layout = {
+                        title: 'Optimal Packaging by Product Weight',
+                        xaxis: {
+                            title: 'Weight (kg)',
+                            gridcolor: '#f8f9fa',
+                            tickvals: Object.values(weightMapping),
+                            ticktext: Object.keys(weightMapping)
+                        },
+                        yaxis: {
+                            title: 'Usage Count',
+                            gridcolor: '#f8f9fa'
+                        },
+                        legend: {
+                            orientation: 'h',
+                            y: -0.2
+                        },
+                        hovermode: 'closest',
+                        plot_bgcolor: 'white'
+                    };
+                    
+                    Plotly.newPlot('weightAnalysisChart', traces, layout);
+                } catch (err) {
+                    console.error('Error processing packaging data:', err);
+                    createSampleWeightChart();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching packaging visualization data:', error);
+                createSampleWeightChart();
+            });
+            
+        // Function to create sample weight-based packaging chart when real data is unavailable
+        function createSampleWeightChart() {
+            // Sample data for weight-based packaging
+            const weightRanges = ['0-1 kg', '1-2 kg', '2-5 kg', '5-10 kg', '10+ kg'];
+            const weightValues = [0.5, 1.5, 3.5, 7.5, 15];
+            
+            // Sample packaging types with counts for each weight range
+            const sampleData = [
+                {
+                    name: 'Corrugated Box',
+                    counts: [10, 15, 22, 18, 12]
+                },
+                {
+                    name: 'Bubble Wrap + Box',
+                    counts: [22, 18, 15, 8, 5]
+                },
+                {
+                    name: 'Foam Box + Ice Pack',
+                    counts: [5, 8, 12, 20, 10]
+                },
+                {
+                    name: 'Plastic Wrap + Box',
+                    counts: [15, 12, 8, 7, 4]
+                }
+            ];
+            
+            // Create traces for sample data
+            const traces = sampleData.map(item => ({
+                x: weightValues,
+                y: item.counts,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: item.name,
+                marker: { size: 8 }
+            }));
+            
+            const layout = {
+                title: 'Optimal Packaging by Product Weight (Sample Data)',
+                xaxis: {
+                    title: 'Weight (kg)',
+                    gridcolor: '#f8f9fa',
+                    tickvals: weightValues,
+                    ticktext: weightRanges
+                },
+                yaxis: {
+                    title: 'Usage Count',
+                    gridcolor: '#f8f9fa'
+                },
+                legend: {
+                    orientation: 'h',
+                    y: -0.2
+                },
+                hovermode: 'closest',
+                plot_bgcolor: 'white'
+            };
+            
+            Plotly.newPlot('weightAnalysisChart', traces, layout);
+        }
+    });
+</script>
 {% endblock %} 
